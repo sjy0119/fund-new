@@ -20,32 +20,36 @@ LOGGER = get_logger(__name__)
 
 def run():
     st.set_page_config(
-        page_title="Hello",
-        page_icon="👋",
-    )
+    page_title="基金数据分析",
+    page_icon="👋",
+)
 
-    st.write("# Welcome to Streamlit! 👋")
-
-    st.sidebar.success("Select a demo above.")
-
+    
+    st.write("# 欢迎来到基金数据分析! 👋")
+    st.sidebar.success("选择您要查询的内容")
+    
     st.markdown(
+            """
+           在这个网页之中，您可以查到
+    
+           1.基金的主体信息
+    
+           2.基金的净值数据
+    
+           3.基金的业绩表现
+    
+           4.最大回撤分析
+    
+           5.相关性分析
+    
+           6.基金择股择时能力分析
+    
+           7.中信风格指数归因
+    
+           8.中信-BARRA业绩归因
+    
+           后续将会添加其他内容，敬请期待。。。。。😀
         """
-        Streamlit is an open-source app framework built specifically for
-        Machine Learning and Data Science projects.
-        **👈 Select a demo from the sidebar** to see some examples
-        of what Streamlit can do!
-        ### Want to learn more?
-        - Check out [streamlit.io](https://streamlit.io)
-        - Jump into our [documentation](https://docs.streamlit.io)
-        - Ask a question in our [community
-          forums](https://discuss.streamlit.io)
-        ### See more complex demos
-        - Use a neural net to [analyze the Udacity Self-driving Car Image
-          Dataset](https://github.com/streamlit/demo-self-driving)
-        - Explore a [New York City rideshare dataset](https://github.com/streamlit/demo-uber-nyc-pickups)
-    """
-    )
-
-
+        )
 if __name__ == "__main__":
     run()
