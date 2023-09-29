@@ -16,21 +16,16 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from datetime import datetime, time, timedelta,date
-from time import sleep
 from time import strftime 
-from scipy.optimize import minimize
 import plotly as py
-import matplotlib.pyplot as plt
 import plotly.express as px
 import plotly.graph_objects as go
 import plotly.figure_factory as ff
 import plotly.io as pio
-from pyecharts.charts import Line
-import seaborn as sns
-import quantstats as qs
 import tushare as ts
 pro = ts.pro_api('8e812052c92d7a829f0e3b0197d248e48bb2ba3efbbaa60f505e6852')
 import holoviews as hv
+
 plt.rcParams['font.sans-serif']=['SimHei']
 plt.rcParams['axes.unicode_minus'] =False #减号unicode编码
 st.set_page_config(page_icon="😎",)
