@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import time
-import plotly as py
 import numpy as np
 import tushare as ts
 import streamlit as st
