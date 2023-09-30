@@ -1,4 +1,0 @@
-pandas-dev
-numpy-dev
-plotly-dev
-tushare-dev
