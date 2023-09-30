@@ -15,7 +15,7 @@
 import time
 import plotly as py
 import numpy as np
-
+import tushare as ts
 import streamlit as st
 from streamlit.hello.utils import show_code
 
