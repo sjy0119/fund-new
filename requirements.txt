@@ -1,10 +1,14 @@
-altair==5.0.1
-numpy==1.23.5
-pandas==1.5.3
-pydeck==0.8.0
-streamlit==1.25.0
-pip install plotly==5.9.0
-tushare==1.2.89
-akshare==1.10.40
-matplotlib==3.7.0
-seaborn==0.12.2
+streamlit~=1.25.0
+pandas~=1.5.3
+numpy~=1.23.5
+plotly~=5.9.0
+matplotlib~=3.7.0
+seaborn~=0.12.2
+tushare~=1.2.89
+quantstats~=0.0.62
+holoviews~=1.15.4
+scipy~=1.10.0
+pyecharts~=2.0.3
+statsmodels~=0.14.0
+akshare~=1.10.40
+hvplot~=0.8.2
