@@ -15,7 +15,6 @@ import plotly.io as pio
 import seaborn as sns
 import tushare as ts
 pro = ts.pro_api('8e812052c92d7a829f0e3b0197d248e48bb2ba3efbbaa60f505e6852')
-import holoviews as hv
 plt.rcParams['font.sans-serif']=['SimHei']
 plt.rcParams['axes.unicode_minus'] =False #减号unicode编码
 st.set_page_config(page_icon="😎",)
