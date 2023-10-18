@@ -11,13 +11,10 @@ import plotly.express as px
 import plotly.graph_objects as go
 import plotly.figure_factory as ff
 import plotly.io as pio
-from pyecharts.charts import Line
 import seaborn as sns
-import holoviews as hv
 import tushare as ts
 pro = ts.pro_api('8e812052c92d7a829f0e3b0197d248e48bb2ba3efbbaa60f505e6852')
 import akshare as ak
-import hvplot.pandas
 #图片显示中文
 plt.rcParams['font.sans-serif']=['SimHei']
 plt.rcParams['axes.unicode_minus'] =False #减号unicode编码
