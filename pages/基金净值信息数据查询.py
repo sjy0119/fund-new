@@ -1,7 +1,6 @@
 import streamlit as st
 import time
 import numpy as np
-import streamlit as st
 import pandas as pd
 from datetime import datetime, time, timedelta,date
 import plotly as py
@@ -10,10 +9,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import plotly.figure_factory as ff
 import plotly.io as pio
-from pyecharts.charts import Line
 import seaborn as sns
-from streamlit_extras.altex import line_chart
-import hvplot.pandas
 import tushare as ts
 pro = ts.pro_api('8e812052c92d7a829f0e3b0197d248e48bb2ba3efbbaa60f505e6852')
 plt.rcParams['font.sans-serif']=['SimHei']
