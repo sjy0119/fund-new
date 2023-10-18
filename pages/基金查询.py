@@ -118,7 +118,7 @@ def get_fund_rank_data(ip):
 
 @st.cache_data
 def get_data():
-    df=Parallel(n_jobs=3)(delayed(get_fund_rank_data)(i) for i in type_list)
+    df=Parallel(n_jobs=-1)(delayed(get_fund_rank_data)(i) for i in type_list)
     return df
 
 df=get_data()
