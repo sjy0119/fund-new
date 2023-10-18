@@ -7,6 +7,6 @@ numpy~=1.23.5
 plotly~=5.9.0
 matplotlib~=3.7.0
 seaborn~=0.12.2
+tushare~=1.2.89
 scipy~=1.10.1
-pyecharts~=2.0.3
 statsmodels~=0.14.0
