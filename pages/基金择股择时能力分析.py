@@ -9,7 +9,6 @@ import plotly.figure_factory as ff
 import seaborn as sns
 import tushare as ts
 pro = ts.pro_api('8e812052c92d7a829f0e3b0197d248e48bb2ba3efbbaa60f505e6852')
-import holoviews as hv
 import streamlit as st
 import pandas as pd
 import numpy as np
