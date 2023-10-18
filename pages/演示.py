@@ -3,7 +3,7 @@ import pandas as pd
 
 @st.cache_data
 def load_data():
-   df=pd.read_csv(r"C:\Users\WuKangmin\Desktop\基金经理")
+   df=pd.read_csv("基金经理")
    return df
 df=load_data()
 
