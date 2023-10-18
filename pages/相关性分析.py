@@ -87,7 +87,7 @@ df_hist2=load_data()
 
 @st.cache_data
 def load_index():
-    df=pd.read_csv(r"C:\Users\WuKangmin\Desktop\基金数据分析及Web可视化\指数数据.csv")
+    df=pd.read_csv("指数数据.csv")
     df['tradedate']=pd.to_datetime(df['tradedate'])
     df['tradedate']=df['tradedate'].apply(lambda x:str(x)[:4]+str(x)[5:7]+str(x)[8:])
     df['tradedate']=df['tradedate'].apply(lambda x:x[:9])
