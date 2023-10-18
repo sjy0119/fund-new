@@ -9,7 +9,6 @@ import plotly.figure_factory as ff
 import seaborn as sns
 import tushare as ts
 pro = ts.pro_api('8e812052c92d7a829f0e3b0197d248e48bb2ba3efbbaa60f505e6852')
-import holoviews as hv
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -36,7 +35,7 @@ benchlist = CIindustryindex_list+CIStyleindex_list+Styleindex_list+Stockindex_li
 #缓存指数数据
 @st.cache_data
 def load_data():
-    df_hist1=pd.read_csv(r"C:\Users\WuKangmin\Desktop\基金数据分析及Web可视化\指数数据.csv")
+    df_hist1=pd.read_csv("指数数据.csv")
     #df_hist1=df_hist.rename(columns={'time':'tradedate'})
     return df_hist1
 df_hist2=load_data()
