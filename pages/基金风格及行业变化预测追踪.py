@@ -11,8 +11,8 @@ import plotly.graph_objs as go
 
 @st.cache_data
 def load_data():
-    df=pd.read_csv(r"C:\Users\WuKangmin\Desktop\风格指数数据",index_col=0)
-    pf=pd.read_csv(r"C:\Users\WuKangmin\Desktop\申万一级数据")
+    df=pd.read_csv("风格指数数据",index_col=0)
+    pf=pd.read_csv("申万一级数据")
     df.index=pd.DatetimeIndex(df.index)
     return df,pf
 all=load_data()
