@@ -135,7 +135,7 @@ if (code)and(st.button('开始')):
 
         f_new=pd.merge(fund_df,style_index,left_index=True,right_index=True,how='left').dropna()
 
-        df=Parallel(n_jobs=4)(delayed(size_analy)(f_new,year_month[i+1],year_month[i]) for i in range(6))
+        df=[size_analy(f_new,year_month[i+1],year_month[i]) for i in range(6)]
 
         re_df=pd.concat(df,ignore_index=True)
         re_df=re_df.apply(lambda x: x*100)
@@ -147,7 +147,7 @@ if (code)and(st.button('开始')):
         sw1_pct.index=pd.DatetimeIndex(sw1_pct.index)
         f_sw=pd.merge(sw1_pct,fund_df,left_index=True,right_index=True,how='left').dropna()
 
-        df1=Parallel(n_jobs=6)(delayed(size_sw)(f_sw,year_month[i+1],year_month[i]) for i in range(6))
+        df1=[size_sw(f_sw,year_month[i+1],year_month[i]) for i in range(6)]
         sw_df=pd.concat(df1,ignore_index=True)
         sw_df=sw_df.apply(lambda x: x*100)
         sw_df['日期']=year_month[:-1]
