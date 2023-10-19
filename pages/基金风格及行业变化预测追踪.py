@@ -30,7 +30,7 @@ for i in sw1.columns:
 sw1_pct=sw1.iloc[:,-31:]
 today=date.today()
 
-year_month=[str(date.today()-relativedelta(months=i))[:-3] for i in range(1,8)]
+year_month=[str(date.today()-relativedelta(months=i))[:-3] for i in range(1,5)]
 
 def size_analy(df,start_date,end_date):
 
@@ -138,7 +138,7 @@ if (code)and(st.button('开始')):
 
         with concurrent.futures.ProcessPoolExecutor(max_workers=8) as executor:
             # 提交任务
-            futures = [executor.submit(size_analy, f_new,year_month[i+1],year_month[i]) for i in range(6)]
+            futures = [executor.submit(size_analy, f_new,year_month[i+1],year_month[i]) for i in range(3)]
             # 获取结果
             df = [f.result() for f in futures]
 
@@ -154,7 +154,7 @@ if (code)and(st.button('开始')):
 
         with concurrent.futures.ProcessPoolExecutor(max_workers=8) as executor:
             # 提交任务
-            futures1 = [executor.submit(size_sw, f_sw,year_month[i+1],year_month[i]) for i in range(6)]
+            futures1 = [executor.submit(size_sw, f_sw,year_month[i+1],year_month[i]) for i in range(3)]
             # 获取结果
             df1 = [f.result() for f in futures1]
         sw_df=pd.concat(df1,ignore_index=True)
