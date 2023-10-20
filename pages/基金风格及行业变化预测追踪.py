@@ -38,7 +38,7 @@ def size_analy(df,start_date,end_date):
     A1= np.array(ff.iloc[:,2:-1])
     num_x = np.shape(A1)[1]
     def my_func(x):
-        ls = 0.5*(b1-np.dot(A1,x))**2
+        ls = np.abs(b1-np.dot(A1,x))**2
         result = np.sum(ls)
         return result
     def g1(x):
@@ -74,7 +74,7 @@ def size_sw(df,start_date,end_date):
     A1 = np.array(lf.iloc[:,:31])
     num_x = np.shape(A1)[1]
     def my_func(x):
-        ls = 0.5*(b1-np.dot(A1,x))**2
+        ls = np.abs(b1-np.dot(A1,x))**2
         result = np.sum(ls)
         return result
     def g1(x):
@@ -112,7 +112,7 @@ text2='晨星风格箱法往往会考虑利用重仓股对基金风格进行分�
 st.caption(text2)
 
 
-if code:
+if (code) and (st.button('开始运行'):
     
     fund_df = ak.fund_open_fund_info_em(fund=code, indicator="累计净值走势")
     fund_df['基金日收益率']=fund_df['累计净值'].pct_change().fillna(0)
