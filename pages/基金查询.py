@@ -51,9 +51,9 @@ params_list=[{
     "v": "0.1591891419018292",
 } for ip in type_list]
 
-@st.cache_data
-def get_data():
-    data={}
+
+def get():
+    dat=dict()
     async def async_get_url(params,i):
         url="http://fund.eastmoney.com/data/rankhandler.aspx"
         headers = {
@@ -121,14 +121,19 @@ def get_data():
                 temp_df=temp_df.apply(pd.to_numeric,errors='ignore')
                 temp_df['基金代码']=temp_df['基金代码'].apply(lambda x:"0000"+str(x))
                 temp_df['基金代码']=temp_df['基金代码'].apply(lambda x: x[-6:])
-                data[i]=temp_df
-                #print('获取成功')
-    #nest_asyncio.apply()
+                dat[i]=temp_df
+                    #print('获取成功')
+            #nest_asyncio.apply()
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     tasks = [async_get_url(params,i) for params,i in zip(params_list,type_list)]
     loop.run_until_complete(asyncio.wait(tasks))
-    return data
+    return dat
+
+@st.cache_data
+def get_data():
+    df=get()
+    return df
 
 df=get_data()
 
