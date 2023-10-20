@@ -112,7 +112,7 @@ text2='晨星风格箱法往往会考虑利用重仓股对基金风格进行分�
 st.caption(text2)
 
 
-if (code) and (st.button('开始运行'):
+if st.button('开始运行'):
     
     fund_df = ak.fund_open_fund_info_em(fund=code, indicator="累计净值走势")
     fund_df['基金日收益率']=fund_df['累计净值'].pct_change().fillna(0)
