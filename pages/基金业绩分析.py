@@ -121,7 +121,7 @@ def load_data1(code):
 
 
 
-if index:
+if code:
     df=load_data(code,index)
 
     rank=load_data1(code)
