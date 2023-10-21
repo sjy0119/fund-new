@@ -32,7 +32,7 @@ elif index=='科创50':
 if (index=='000300')|(index=='000905')|(index=='000906')|(index=='000852')|(index=='000016')|(index=='000688'):
     index='sh'+index
 
-@st.cache_data
+@st.cache_data(ttl=300)
 def load_data(code,index):
     fund_nav = ak.fund_open_fund_info_em(fund=code, indicator="累计净值走势").rename(columns={'净值日期':'date','累计净值':'accum_nav'})
     fund_nav['date']=pd.to_datetime(fund_nav['date'])
@@ -114,7 +114,7 @@ def cal_choose_stock_time(nav_one):
     al_ti=pd.DataFrame([al_ti])
     return al_ti
         #dat[f'{year_month[i+1]}:{year_month[i]}']=al_ti
-@st.cache_data
+@st.cache_data(ttl=300)
 def get_data(all_df):
     rt=[cal_choose_stock_time(df) for df in all_df]
     return rt
