@@ -103,7 +103,7 @@ def nav_analy(nav_df_part):
                             '年化波动率', '年化夏普', '卡玛比率', '下行波动率','胜率']]
     return result_df
 
-@st.cache_data
+@st.cache_data(ttl=300)
 def load_data(code,index):
     fund_nav = ak.fund_open_fund_info_em(fund=code, indicator="累计净值走势").rename(columns={'净值日期':'date','累计净值':code})
     fund_nav['date']=pd.to_datetime(fund_nav['date'])
@@ -114,7 +114,7 @@ def load_data(code,index):
     df[index+'pct']=df[index].pct_change().fillna(0)
     df=df.set_index('date')
     return df
-@st.cache_data
+@st.cache_data(ttl=300)
 def load_data1(code):
     fund_df = ak.fund_open_fund_info_em(fund=code, indicator="同类排名走势").rename(columns={'报告日期':'date'})
     return fund_df
