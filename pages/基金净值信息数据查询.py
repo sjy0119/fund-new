@@ -33,8 +33,8 @@ end_date = st.date_input(
 结束=str(end_date)[:4]+str(end_date)[5:7]+str(end_date)[8:]
 code=st.text_input('请输入基金代码例如000001.OF')
 
-hg = st.text_input(
-        "请输入净值名称例如单位净值 👇",
+hg = st.selectbox(
+        "请输入净值名称例如单位净值 👇",('单位净值','累计净值')
 )
 if hg:
     leix=str(hg)
