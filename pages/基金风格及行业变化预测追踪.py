@@ -8,7 +8,7 @@ import akshare as ak
 import plotly as py
 import plotly.graph_objs as go
 
-@st.cache_data
+@st.cache_data(ttl=600)
 def load_data():
     df=pd.read_csv("风格指数数据",index_col=0)
     pf=pd.read_csv("申万一级数据")
