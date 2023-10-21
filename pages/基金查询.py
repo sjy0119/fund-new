@@ -130,7 +130,7 @@ def get():
     loop.run_until_complete(asyncio.wait(tasks))
     return dat
 
-@st.cache_data
+@st.cache_data(ttl=600)
 def get_data():
     df=get()
     return df
