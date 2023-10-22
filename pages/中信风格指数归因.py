@@ -6,7 +6,7 @@ import pandas as pd
 import numpy as np
 from datetime import date
 import akshare as ak
-import plotly_express as px
+import plotly.express as px
 plt.rcParams['font.sans-serif']=['SimHei']
 plt.rcParams['axes.unicode_minus'] =False #减号unicode编码
 st.set_page_config(page_icon="😎",)
