@@ -32,7 +32,7 @@ fund_pre=data_info[-1]
 fund_pre['基金代码']=fund_pre['基金代码'].apply(lambda x: '00000'+str(x)).apply(lambda x: x[-6:])
 fund_all['任职时间']=fund_all['任职时间'].apply(lambda x: str(x))
 
-fund_id=list(fund_all['基金代码'])
+fund_id=list(fund_all['基金代码'].unique())
 
 
 
