@@ -246,7 +246,7 @@ if st.button('开始运行'):
 
     
 
-    st.dataframe(fi)
+    st.dataframe(fi,hide_index=True)
 
     st.plotly_chart(fig)
 
@@ -255,7 +255,7 @@ if st.button('开始运行'):
     st.caption('数值越大表明风格漂移越严重')
     st.plotly_chart(fig3)
    
-    st.dataframe(fi_new)
+    st.dataframe(fi_new,hide_index=True)
 
 
 
