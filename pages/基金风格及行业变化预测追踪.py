@@ -99,6 +99,50 @@ def size_sw(df,start_date,end_date):
 
     return ph1
 
+def cal_sds(df):
+    year_name=str(df.index.year.unique()[0])
+    time_list=[('0'+str(i))[-2:] for i in list(df.index.month.unique())]
+    def cal_index(df):
+        ff=df.copy()
+        b1 = np.array(ff['基金日收益率'])
+        A1= np.array(ff.iloc[:,2:-1])
+        num_x = np.shape(A1)[1]
+        def my_func(x):
+            ls = np.abs((b1-np.dot(A1,x))**2)
+            result = np.sum(ls)
+            return result
+        def g1(x):
+            return np.sum(x) #sum of X >= 0
+        def g2(x):
+            return 1-np.sum(x) #sum of X <= 1
+        cons = ({'type': 'ineq', 'fun': g1}
+                ,{'type': 'eq', 'fun': g2})
+        x0 = np.zeros(num_x)
+        bnds = [(0,1)]
+        for i in range(num_x-1):
+            bnds.append((0,1))
+        res = minimize(my_func, 
+                    bounds = bnds, x0=x0,
+                    constraints=cons)
+        ph=dict()
+        ph['大盘成长']=res.x[0]
+        ph['大盘价值']=res.x[1]
+        ph['中盘成长']=res.x[2]
+        ph['中盘价值']=res.x[3]
+        ph['小盘成长']=res.x[4]
+        ph['小盘价值']=res.x[5]
+        #ph['中债财富总值']=res.x[6]
+        ph1=pd.DataFrame([ph])
+
+        ph1=ph1.apply(lambda x: x*100)
+
+        return ph1
+    al=[cal_index(df[year_name+'-'+i:year_name+'-'+i]) for i in time_list]
+    ax=pd.concat(al)
+    num=np.sqrt(np.sum([np.var(ax[i]) for i in ['大盘成长','大盘价值','中盘成长','中盘价值','小盘成长','小盘价值']]))
+
+    return round(num,3)
+
 
 
 st.title('基金风格及行业变化预测追踪 :blue[!] :sunglasses:')
@@ -120,6 +164,11 @@ if st.button('开始运行'):
     fund_df=fund_df.rename(columns={'净值日期':'date'}).set_index('date')
     
     f_new=pd.merge(fund_df,style_index,left_index=True,right_index=True,how='left').dropna()
+
+    year_list=list(f_new.index.year.unique())
+    a_df=[f_new[str(i):str(i)] for i in year_list]
+
+    ax=[ cal_sds(i) for i in a_df]
 
     
     df=[size_analy(f_new,year_month[i+1],year_month[i]) for i in range(6)]
@@ -190,6 +239,11 @@ if st.button('开始运行'):
 
     fig2 = go.Figure(data = data_sw, layout = layout1)
 
+    fig3= go.Figure(data = (go.Scatter(x=year_list,  
+                                    y=ax,mode='lines')))
+    fig3.update_layout(title_text='风格稳定情况')
+
+
     
 
     st.dataframe(fi)
@@ -198,8 +252,10 @@ if st.button('开始运行'):
 
     st.plotly_chart(fig2)
 
-    if st.checkbox('展示行业变化数据'):
-        st.dataframe(fi_new)
+    st.caption('数值越大表明风格漂移越严重')
+    st.plotly_chart(fig3)
+   
+    st.dataframe(fi_new)
 
 
 
