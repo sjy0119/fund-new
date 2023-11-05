@@ -158,7 +158,7 @@ def get(url_list,name_list):
     loop.run_until_complete(asyncio.wait(tasks))
     return dat
 
-@st.cache_data(ttl=660)
+@st.cache_data(ttl=6600)
 def get_data(url_list,name_list):
     df=get(url_list,name_list)
     return df
