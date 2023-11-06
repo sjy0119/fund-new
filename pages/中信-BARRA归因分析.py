@@ -41,6 +41,10 @@ def load_barra_data():
     barra_factor=barra_factor.rename(columns={'price_date':"date"})
     barra_factor['date']=pd.to_datetime(barra_factor['date'])
     barra_factor1=barra_factor.set_index('date')
+    barra_factor1.columns=['BarraCNE5_Beta', 'BarraCNE5_BooktoPrice', 'BarraCNE5_DebttoAssets',
+    'BarraCNE5_EarningsYield', 'BarraCNE5_Growth', 'BarraCNE5_Liquidity',
+    'BarraCNE5_Momentum', 'BarraCNE5_NonLinearSize',
+    'BarraCNE5_ResidualVolatility', 'BarraCNE5_Size']
     for barra_col in barra_factor1.columns:
         barra_factor1[barra_col+'_nav'] = 1
         barra_factor1[barra_col+'_nav'].iloc[1:] = (1+barra_factor1[barra_col].iloc[1:]).cumprod()
