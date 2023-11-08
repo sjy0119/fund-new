@@ -197,7 +197,7 @@ def get_money_flow():
     url='https://push2his.eastmoney.com/api/qt/stock/fflow/daykline/get?cb=jQuery11230960759451624605_1699334564622&lmt=0&klt=101&fields1=f1%2Cf2%2Cf3%2Cf7&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61%2Cf62%2Cf63%2Cf64%2Cf65&ut=b2884a393a59ad64002292a3e90d46a5&secid=1.000001&secid2=0.399001&_=1699334564623'
     r=requests.get(url)
     data_text=r.text
-    data_=pd.DataFrame(items.split(',') for items in eval(data_text[41:-2])['data']['klines'])
+    data_=pd.DataFrame(items.split(',') for items in ast.literal_eval(data_text[41:-2])['data']['klines'])
     data_=data_.iloc[:,:6]
     data_.columns=['date','主力净流入','小单净流入','中单净流入','大单净流入','超大单净流入']
     for i in data_.columns[1:]:
@@ -238,7 +238,7 @@ def north_money():
     url='https://push2his.eastmoney.com/api/qt/kamt.kline/get?fields1=f1,f3,f5&fields2=f51,f52&klt=101&lmt=500&ut=b2884a393a59ad64002292a3e90d46a5&cb=jQuery112309386865849321027_1699336618719&_=1699336618731'
     r=requests.get(url)
     data_text=r.text
-    data=pd.DataFrame([items.split(',') for items in eval(data_text[data_text.find('(')+1:-2])['data']['s2n']])
+    data=pd.DataFrame([items.split(',') for items in ast.literal_eval(data_text[data_text.find('(')+1:-2])['data']['s2n']])
     data.columns=['date','北向资金净流入']
     data.loc[:,'北向资金净流入']=data.loc[:,'北向资金净流入'].apply(lambda x: round(float(x)/10000,2))
     return data
