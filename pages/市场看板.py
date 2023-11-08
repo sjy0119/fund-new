@@ -14,7 +14,8 @@ import aiohttp
 import requests
 import json
 from akshare.utils import demjson
-from plotly.subplots import make_subplots
+import warnings
+warnings.filterwarnings("ignore")
 plt.rcParams['font.sans-serif']=['SimHei']
 plt.rcParams['axes.unicode_minus'] =False 
 
@@ -37,7 +38,7 @@ def get_data():
     for url , i in zip(global_index_list,global_name):
         r=requests.get(url)
         data_text =  r.text
-        df=eval(data_text[data_text.find("(") + 1 :-2])
+        df=eval(data_text[26:-2])
         temp_df=pd.DataFrame([item.split(",") for item in df["data"]["klines"]]).iloc[:,:5]
         temp_df.columns = ["date", "open", "close", "high", "low"]
         temp_df=temp_df[['date','close']]
@@ -236,7 +237,7 @@ def north_money():
     url='https://push2his.eastmoney.com/api/qt/kamt.kline/get?fields1=f1,f3,f5&fields2=f51,f52&klt=101&lmt=500&ut=b2884a393a59ad64002292a3e90d46a5&cb=jQuery112309386865849321027_1699336618719&_=1699336618731'
     r=requests.get(url)
     data_text=r.text
-    data=pd.DataFrame([items.split(',') for items in json.loads(data_text[42:-2])['data']['s2n']])
+    data=pd.DataFrame([items.split(',') for items in eval(data_text[42:-2])['data']['s2n']])
     data.columns=['date','北向资金净流入']
     data.loc[:,'北向资金净流入']=data.loc[:,'北向资金净流入'].apply(lambda x: round(float(x)/10000,2))
     return data
