@@ -32,8 +32,8 @@ def get_data():
     async def global_index_kline(url,i) :
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as r:
-                data_text = await r.text
-                df=demjson.decode(data_text[data_text.find("(") + 1 :-2])
+                data_text = await r.text()
+                df=eval(data_text[data_text.find("(") + 1 :-2])
                 temp_df=pd.DataFrame([item.split(",") for item in df["data"]["klines"]]).iloc[:,:5]
                 temp_df.columns = ["date", "open", "close", "high", "low"]
                 temp_df=temp_df[['date','close']]
