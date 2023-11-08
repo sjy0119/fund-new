@@ -30,26 +30,22 @@ global_index_list=[f'http://push2his.eastmoney.com/api/qt/stock/kline/get?secid=
                   for i in ['1.000300','1.000905','1.000906','1.000852','1.000016','1.000688']]
 
 global_name=['沪深300','中证500','上证50','中证1000','中证800','科创50']
+
+@st.cache_data(ttl=60)
 def get_data():
     data=[]
-    async def global_index_kline(url,i) :
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url) as r:
-                data_text = await r.text()
-                df=json.loads(data_text[26:-2])
-                temp_df=pd.DataFrame([item.split(",") for item in df["data"]["klines"]]).iloc[:,:5]
-                temp_df.columns = ["date", "open", "close", "high", "low"]
-                temp_df=temp_df[['date','close']]
-                temp_df['date']=pd.to_datetime(temp_df['date'])
-                temp_df["close"] = pd.to_numeric(temp_df["close"], errors="coerce")
-                temp_df=temp_df.rename(columns={'close':i})
-                temp_df=temp_df.set_index('date')
-                data.append(temp_df)
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    tasks = [global_index_kline(url,i) for url,i in zip(global_index_list,global_name)]
-    loop.run_until_complete(asyncio.wait(tasks))
-
+    for url , i in zip(global_index_list,global_name):
+        r=requests.get(url)
+        data_text =  r.text
+        df=eval(data_text[26:-2])
+        temp_df=pd.DataFrame([item.split(",") for item in df["data"]["klines"]]).iloc[:,:5]
+        temp_df.columns = ["date", "open", "close", "high", "low"]
+        temp_df=temp_df[['date','close']]
+        temp_df['date']=pd.to_datetime(temp_df['date'])
+        temp_df["close"] = pd.to_numeric(temp_df["close"], errors="coerce")
+        temp_df=temp_df.rename(columns={'close':i})
+        temp_df=temp_df.set_index('date')
+        data.append(temp_df)
     global_index_df=pd.concat(data,axis=1).fillna(method='pad',axis=0)
     return global_index_df
 #所有指数数据
