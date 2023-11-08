@@ -32,7 +32,7 @@ def get_data():
     for url , i in zip(global_index_list,global_name):
         r=requests.get(url)
         data_text =  r.text
-        df=eval(data_text[data_text.find("(") + 1 :-2])
+        df=eval(data_text)
         temp_df=pd.DataFrame([item.split(",") for item in df["data"]["klines"]]).iloc[:,:5]
         temp_df.columns = ["date", "open", "close", "high", "low"]
         temp_df=temp_df[['date','close']]
