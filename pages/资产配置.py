@@ -13,6 +13,8 @@ import plotly.graph_objs as go
 from akshare.utils import demjson
 import json
 import requests
+import warnings
+warnings.filterwarnings("ignore")
 plt.rcParams['font.sans-serif']=['SimHei']
 plt.rcParams['axes.unicode_minus'] =False 
 
