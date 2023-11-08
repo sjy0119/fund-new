@@ -849,7 +849,12 @@ if (freq)and(st.button('开始')):
             nav1.index[-1].strftime('%Y-%m-%d'),
             margin=dict(l=100, r=100, t=60, b=80),
             yaxis={'tickformat': '.2f', 'title': ' 净值'},
-            xaxis={'tickangle': -70, 'tickformat': '%Y-%m-%d'})
+            xaxis={'tickangle': -70, 'tickformat': '%Y-%m-%d'},legend=dict(
+                    orientation="h",
+                    yanchor="bottom",
+                    y=1.02,
+                    xanchor="center",
+                    x=0.5))
         
         base_drown=-((nav2.cummax() - nav2) /
                                         (nav2.cummax()))
@@ -866,7 +871,12 @@ if (freq)and(st.button('开始')):
 
         fig_nav1.update_layout(
             title_text="基准与配置策略回撤比较图 <br> 最新净值日期:" +
-            nav1.index[-1].strftime('%Y-%m-%d')
+            nav1.index[-1].strftime('%Y-%m-%d'),legend=dict(
+                    orientation="h",
+                    yanchor="bottom",
+                    y=1.02,
+                    xanchor="center",
+                    x=0.5)
             )
         
         def performance(datas):
