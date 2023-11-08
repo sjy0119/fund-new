@@ -26,7 +26,6 @@ global_index_list=[f'http://push2his.eastmoney.com/api/qt/stock/kline/get?secid=
 
 global_name=['纳斯达克','标普500','恒生指数','日经225','黄金指数','富时100','德国DAX30','沪深300','中证500','上证50','中证1000','中证800']
 
-@st.cache_data(ttl=600)
 def get_data():
     data=[]
     async def global_index_kline(url,i) :
