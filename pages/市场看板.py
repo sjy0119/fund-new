@@ -53,7 +53,7 @@ all_data=get_data()
 #2.读取barra因子收益率数据
 @st.cache_data(ttl=6000)
 def load_barra_data():
-    barra_factor=pd.read_csv(r"C:\Users\WuKangmin\Desktop\factor_return.csv",index_col=0)#读取barra因子日收益率数据
+    barra_factor=pd.read_csv("factor_return.csv",index_col=0)#读取barra因子日收益率数据
     barra_factor=barra_factor.rename(columns={'price_date':"date"})
     barra_factor['date']=pd.to_datetime(barra_factor['date'])
     barra_factor1=barra_factor.set_index('date')
@@ -81,7 +81,7 @@ barra_factor_list =['BarraCNE5_Beta_nav_pct', 'BarraCNE5_BooktoPrice_nav_pct', '
 #3.读取期货风格因子收益率数据
 @st.cache_data
 def load_future_data():
-    df=pd.read_csv(r"C:\Users\WuKangmin\Desktop\期货风格因子日收益率",index_col=0)
+    df=pd.read_csv("期货风格因子日收益率",index_col=0)
     df=df.rename(columns={'price_date':'date'})
     df=df.set_index('date')
     return df
@@ -151,14 +151,14 @@ def barra_ana(df,code):
 #5.读取申万风格指数数据
 @st.cache_data(ttl=6000)
 def load_sw():
-    df=pd.read_csv(r"C:\Users\WuKangmin\Desktop\sw风格指数数据",index_col=0)
+    df=pd.read_csv("sw风格指数数据",index_col=0)
     df.index=pd.DatetimeIndex(df.index)
     return df
 sw_style=load_sw()
 #6.读取申万以及行业数据
 @st.cache_data(ttl=6000)
 def load_sw_1():
-    df=pd.read_csv(r"C:\Users\WuKangmin\Desktop\申万一级数据",index_col=0)
+    df=pd.read_csv("申万一级数据",index_col=0)
     list1=list(df['指数名称'].unique())
     df_list=[df.loc[df['指数名称']==i][['日期','收盘价']].rename(columns={'收盘价':i}).set_index('日期') for i in list1]
     df_all=pd.concat(df_list,axis=1)
@@ -168,7 +168,7 @@ sw_1=load_sw_1()
 #7.读取私募策略指数数据
 @st.cache_data
 def load_simu_index():
-    df=pd.read_csv(r"C:\Users\WuKangmin\Desktop\私募指数数据",index_col=0)
+    df=pd.read_csv("私募指数数据",index_col=0)
     list1=list(df['火富牛私募策略指数'].unique())
     df_list=[df.loc[df['火富牛私募策略指数']==i][['price_date','nav']].rename(columns={'nav':i}).set_index('price_date') for i in list1]
     df_all=pd.concat(df_list,axis=1)
