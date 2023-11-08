@@ -15,7 +15,7 @@ import requests
 plt.rcParams['font.sans-serif']=['SimHei']
 plt.rcParams['axes.unicode_minus'] =False 
 
-
+st.title('组合回测 :blue[!] :sunglasses:')
 #开始和结束日期的选择
 start_date = st.date_input(
     "请选择开始日期",
@@ -29,7 +29,7 @@ end=str(end_date)
 #全市场基金代码及简称数据
 @st.cache_data
 def load_data():
-    df=pd.read_csv(r"C:\Users\WuKangmin\Desktop\全市场基金",index_col=0)
+    df=pd.read_csv("全市场基金",index_col=0)
     df['基金代码']=df['基金代码'].apply(lambda x:('0000'+str(x))[-6:])
     return df
 fund_=load_data()
@@ -908,7 +908,14 @@ if (freq)and(st.button('开始')):
                 nav1.index[-1].strftime('%Y-%m-%d'),
                 margin=dict(l=100, r=100, t=60, b=80),
                 yaxis={'tickformat': '.2f', 'title': ' 净值'},
-                xaxis={'tickangle': -70, 'tickformat': '%Y-%m-%d'})
+                xaxis={'tickangle': -70, 'tickformat': '%Y-%m-%d'},
+                legend=dict(
+                    orientation="h",
+                    yanchor="bottom",
+                    y=1.02,
+                    xanchor="center",
+                    x=0.5
+                     ))
             
             base_drown=-((nav2.cummax() - nav2) /
                                             (nav2.cummax()))
@@ -925,7 +932,12 @@ if (freq)and(st.button('开始')):
 
             fig_nav1.update_layout(
                 title_text="基准与配置策略回撤比较图 <br> 最新净值日期:" +
-                nav1.index[-1].strftime('%Y-%m-%d')
+                nav1.index[-1].strftime('%Y-%m-%d'),legend=dict(
+                    orientation="h",
+                    yanchor="bottom",
+                    y=1.02,
+                    xanchor="center",
+                    x=0.5)
                 )
             
             def performance(datas):
