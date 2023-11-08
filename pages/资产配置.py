@@ -25,8 +25,8 @@ global_index_list=[f'http://push2his.eastmoney.com/api/qt/stock/kline/get?secid=
                   for i in ['100.NDX','100.SPX','100.HSI','100.N225','101.GC00Y','100.FTSE','100.GDAXI','1.000300','1.000905','1.000906','1.000852','1.000016']]
 
 global_name=['纳斯达克','标普500','恒生指数','日经225','黄金指数','富时100','德国DAX30','沪深300','中证500','上证50','中证1000','中证800']
-
-def get_data():
+@st.cache_data(ttl=600)
+def get_data(global_index_list,global_name):
     data=[]
     async def global_index_kline(url,i) :
         async with aiohttp.ClientSession() as session:
@@ -55,7 +55,7 @@ def get_data():
 
     return df_all
     
-df_all=get_data()
+df_all=get_data(global_index_list,global_name)
 
 start_date = st.date_input(
     "请选择开始日期",
