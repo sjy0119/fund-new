@@ -182,7 +182,7 @@ def get_tech_data():
     r=requests.get(url)
     data_text=r.text
     data=data_text[43:-2]
-    df=pd.DataFrame(json.loads(data)['data']['diff'])
+    df=pd.DataFrame(eval(data)['data']['diff'])
     df1=df.loc[:,['f14','f164']]
     df1.columns=['概念名称','主力净流入']
     df1['主力净流入']=df1['主力净流入'].apply(lambda x: round(x/100000000,2))
@@ -195,7 +195,7 @@ def get_money_flow():
     url='https://push2his.eastmoney.com/api/qt/stock/fflow/daykline/get?cb=jQuery11230960759451624605_1699334564622&lmt=0&klt=101&fields1=f1%2Cf2%2Cf3%2Cf7&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61%2Cf62%2Cf63%2Cf64%2Cf65&ut=b2884a393a59ad64002292a3e90d46a5&secid=1.000001&secid2=0.399001&_=1699334564623'
     r=requests.get(url)
     data_text=r.text
-    data_=pd.DataFrame(items.split(',') for items in json.loads(data_text[41:-2])['data']['klines'])
+    data_=pd.DataFrame(items.split(',') for items in eval(data_text[41:-2])['data']['klines'])
     data_=data_.iloc[:,:6]
     data_.columns=['date','主力净流入','小单净流入','中单净流入','大单净流入','超大单净流入']
     for i in data_.columns[1:]:
@@ -210,7 +210,7 @@ def get_industry():
     url='https://push2.eastmoney.com/api/qt/clist/get?cb=jQuery112305790360726884456_1699335338708&pn=1&pz=500&po=1&np=1&fields=f12%2Cf13%2Cf14%2Cf62&fid=f62&fs=m%3A90%2Bt%3A2&ut=b2884a393a59ad64002292a3e90d46a5&_=1699335338729'
     r=requests.get(url)
     data_text=r.text
-    data=pd.DataFrame(json.loads(data_text[42:-2])['data']['diff'])
+    data=pd.DataFrame(eval(data_text[42:-2])['data']['diff'])
     data=data.iloc[:,2:]
     data.columns=['行业名称','资金净流入']
     data['资金净流入']=data['资金净流入'].apply(lambda x: round(float(x)/100000000,3))
