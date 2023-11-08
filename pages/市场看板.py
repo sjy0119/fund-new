@@ -18,7 +18,11 @@ from plotly.subplots import make_subplots
 plt.rcParams['font.sans-serif']=['SimHei']
 plt.rcParams['axes.unicode_minus'] =False 
 
-
+st.title('市场看板 :blue[!] :sunglasses:')
+st.markdown('1.市场指数情况')
+st.markdown('2.股票市场情况')
+st.markdown('3.风格因子情况')
+st.markdown('4.宏观指标情况及私募策略指数情况')
 
 #爬虫函数定义模块
 #1.爬取市场主要指数的收盘价数据
