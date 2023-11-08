@@ -11,6 +11,7 @@ import asyncio
 import aiohttp
 import plotly.graph_objs as go
 from akshare.utils import demjson
+import json
 import requests
 plt.rcParams['font.sans-serif']=['SimHei']
 plt.rcParams['axes.unicode_minus'] =False 
@@ -40,7 +41,7 @@ def load_base():
     url='http://push2his.eastmoney.com/api/qt/stock/kline/get?secid=1.000905&fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&lmt=58&klt=101&fqt=1&beg=20070115&end=20500101&ut=4f1862fc3b5e77c150a2b985b12db0fd&cb=cb_1699079114473_83662397&cb_1699079114473_83662397=cb_1699079114473_83662397'
     r=requests.get(url)
     data_text = r.text
-    df=eval(data_text[26:-2])
+    df=json.loads(data_text[26:-2])
     temp_df=pd.DataFrame([item.split(",") for item in df["data"]["klines"]]).iloc[:,:5]
     temp_df.columns = ["date", "open", "close", "high", "low"]
     temp_df=temp_df[['date','close']]
