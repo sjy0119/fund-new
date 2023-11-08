@@ -9,7 +9,8 @@ from matplotlib import pyplot as plt
 import akshare as ak
 import asyncio
 import aiohttp
-import plotly.graph_objs as 
+import plotly.graph_objs as go
+from akshare.utils import demjson
 import json
 plt.rcParams['font.sans-serif']=['SimHei']
 plt.rcParams['axes.unicode_minus'] =False 
@@ -32,7 +33,7 @@ def get_data():
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as r:
                 data_text = await r.text()
-                df=json.loads(data_text[26:-2])
+                df=demjson.decode(data_text[26:-2])
                 temp_df=pd.DataFrame([item.split(",") for item in df["data"]["klines"]]).iloc[:,:5]
                 temp_df.columns = ["date", "open", "close", "high", "low"]
                 temp_df=temp_df[['date','close']]
