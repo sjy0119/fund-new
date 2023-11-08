@@ -39,7 +39,7 @@ def get_data():
     for url , i in zip(global_index_list,global_name):
         r=requests.get(url)
         data_text =  r.text
-        df=ast.literal_eval(data_text[26 :-2])
+        df=json.loads(data_text[26 :-2])
         temp_df=pd.DataFrame([item.split(",") for item in df["data"]["klines"]]).iloc[:,:5]
         temp_df.columns = ["date", "open", "close", "high", "low"]
         temp_df=temp_df[['date','close']]
