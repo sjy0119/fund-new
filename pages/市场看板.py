@@ -15,6 +15,7 @@ import requests
 import json
 from akshare.utils import demjson
 import warnings
+import ast
 warnings.filterwarnings("ignore")
 plt.rcParams['font.sans-serif']=['SimHei']
 plt.rcParams['axes.unicode_minus'] =False 
@@ -38,7 +39,7 @@ def get_data():
     for url , i in zip(global_index_list,global_name):
         r=requests.get(url)
         data_text =  r.text
-        df=eval(data_text[data_text.find("(") + 1 :-2])
+        df=ast.literal_eval(data_text[data_text.find("(") + 1 :-2])
         temp_df=pd.DataFrame([item.split(",") for item in df["data"]["klines"]]).iloc[:,:5]
         temp_df.columns = ["date", "open", "close", "high", "low"]
         temp_df=temp_df[['date','close']]
