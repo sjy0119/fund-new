@@ -12,10 +12,9 @@ from plotly.figure_factory import create_table
 import asyncio
 import aiohttp
 import requests
-import json
+import orjson
 from akshare.utils import demjson
 import warnings
-import ast
 warnings.filterwarnings("ignore")
 plt.rcParams['font.sans-serif']=['SimHei']
 plt.rcParams['axes.unicode_minus'] =False 
@@ -28,27 +27,34 @@ st.markdown('4.宏观指标情况及私募策略指数情况')
 
 #爬虫函数定义模块
 #1.爬取市场主要指数的收盘价数据
-global_index_list=[f'http://push2his.eastmoney.com/api/qt/stock/kline/get?secid={i}&fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&lmt=58&klt=101&fqt=1&beg=20070115&end=20500101&ut=4f1862fc3b5e77c150a2b985b12db0fd&cb=cb_1699079114473_83662397&cb_1699079114473_83662397=cb_1699079114473_83662397'
+global_index_list=[f'http://push2his.eastmoney.com/api/qt/stock/kline/get?secid={i}&fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&lmt=58&klt=101&fqt=1&beg=20070115&end=20500101&ut=4f1862fc3b5e77c150a2b985b12db0fd'
                   for i in ['1.000300','1.000905','1.000906','1.000852','1.000016','1.000688']]
 
 global_name=['沪深300','中证500','上证50','中证1000','中证800','科创50']
 
-@st.cache_data(ttl=60)
+@st.cache_data(ttl=600)
 def get_data():
     data=[]
-    for url , i in zip(global_index_list,global_name):
-        r=requests.get(url)
-        data_text =  r.text
-        df=demjson.encode(data_text[26 :-2])
-        temp_df=pd.DataFrame([item.split(",") for item in df["data"]["klines"]]).iloc[:,:5]
-        temp_df.columns = ["date", "open", "close", "high", "low"]
-        temp_df=temp_df[['date','close']]
-        temp_df['date']=pd.to_datetime(temp_df['date'])
-        temp_df["close"] = pd.to_numeric(temp_df["close"], errors="coerce")
-        temp_df=temp_df.rename(columns={'close':i})
-        temp_df=temp_df.set_index('date')
-        data.append(temp_df)
+    async def global_index_kline(url,i) :
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as r:
+                data_text = await r.text()
+                df=orjson.loads(data_text)
+                temp_df=pd.DataFrame([item.split(",") for item in df["data"]["klines"]]).iloc[:,:5]
+                temp_df.columns = ["date", "open", "close", "high", "low"]
+                temp_df=temp_df[['date','close']]
+                temp_df['date']=pd.to_datetime(temp_df['date'])
+                temp_df["close"] = pd.to_numeric(temp_df["close"], errors="coerce")
+                temp_df=temp_df.rename(columns={'close':i})
+                temp_df=temp_df.set_index('date')
+                data.append(temp_df)
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    tasks = [global_index_kline(url,i) for url,i in zip(global_index_list,global_name)]
+    loop.run_until_complete(asyncio.wait(tasks))
+
     global_index_df=pd.concat(data,axis=1).fillna(method='pad',axis=0)
+  
     return global_index_df
 #所有指数数据
 all_data=get_data()
@@ -180,11 +186,10 @@ simu_index=load_simu_index()
 #获取概念板块主力近5日资金流入
 @st.cache_data(ttl=60)
 def get_tech_data():
-    url='https://push2.eastmoney.com/api/qt/clist/get?cb=jQuery1123007130534607061079_1699333084192&fid=f164&po=1&pz=500&pn=1&np=1&fltt=2&invt=2&ut=b2884a393a59ad64002292a3e90d46a5&fs=m%3A90+t%3A3&fields=f12%2Cf14%2Cf2%2Cf109%2Cf164%2Cf165%2Cf166%2Cf167%2Cf168%2Cf169%2Cf170%2Cf171%2Cf172%2Cf173%2Cf257%2Cf258%2Cf124%2Cf1%2Cf13'
+    url='https://push2.eastmoney.com/api/qt/clist/get?fid=f164&po=1&pz=500&pn=1&np=1&fltt=2&invt=2&ut=b2884a393a59ad64002292a3e90d46a5&fs=m%3A90+t%3A3&fields=f12%2Cf14%2Cf2%2Cf109%2Cf164%2Cf165%2Cf166%2Cf167%2Cf168%2Cf169%2Cf170%2Cf171%2Cf172%2Cf173%2Cf257%2Cf258%2Cf124%2Cf1%2Cf13'
     r=requests.get(url)
     data_text=r.text
-    data=data_text[43:-2]
-    df=pd.DataFrame(json.loads(data)['data']['diff'])
+    df=pd.DataFrame(orjson.loads(data_text)['data']['diff'])
     df1=df.loc[:,['f14','f164']]
     df1.columns=['概念名称','主力净流入']
     df1['主力净流入']=df1['主力净流入'].apply(lambda x: round(x/100000000,2))
@@ -194,10 +199,10 @@ tech_data=get_tech_data()
 #获取大盘资金流向
 @st.cache_data(ttl=600)
 def get_money_flow():
-    url='https://push2his.eastmoney.com/api/qt/stock/fflow/daykline/get?cb=jQuery11230960759451624605_1699334564622&lmt=0&klt=101&fields1=f1%2Cf2%2Cf3%2Cf7&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61%2Cf62%2Cf63%2Cf64%2Cf65&ut=b2884a393a59ad64002292a3e90d46a5&secid=1.000001&secid2=0.399001&_=1699334564623'
+    url='https://push2his.eastmoney.com/api/qt/stock/fflow/daykline/get?lmt=0&klt=101&fields1=f1%2Cf2%2Cf3%2Cf7&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61%2Cf62%2Cf63%2Cf64%2Cf65&ut=b2884a393a59ad64002292a3e90d46a5&secid=1.000001&secid2=0.399001&_=1699334564623'
     r=requests.get(url)
     data_text=r.text
-    data_=pd.DataFrame(items.split(',') for items in json.loads(data_text[41:-2])['data']['klines'])
+    data_=pd.DataFrame(items.split(',') for items in orjson.loads(data_text)['data']['klines'])
     data_=data_.iloc[:,:6]
     data_.columns=['date','主力净流入','小单净流入','中单净流入','大单净流入','超大单净流入']
     for i in data_.columns[1:]:
@@ -209,10 +214,10 @@ money=money.set_index('date')
 #获取板块今日资金净流入情况
 @st.cache_data(ttl=60)
 def get_industry():
-    url='https://push2.eastmoney.com/api/qt/clist/get?cb=jQuery112305790360726884456_1699335338708&pn=1&pz=500&po=1&np=1&fields=f12%2Cf13%2Cf14%2Cf62&fid=f62&fs=m%3A90%2Bt%3A2&ut=b2884a393a59ad64002292a3e90d46a5&_=1699335338729'
+    url='https://push2.eastmoney.com/api/qt/clist/get?pn=1&pz=500&po=1&np=1&fields=f12%2Cf13%2Cf14%2Cf62&fid=f62&fs=m%3A90%2Bt%3A2&ut=b2884a393a59ad64002292a3e90d46a5&_=1699335338729'
     r=requests.get(url)
     data_text=r.text
-    data=pd.DataFrame(json.loads(data_text[42:-2])['data']['diff'])
+    data=pd.DataFrame(orjson.loads(data_text)['data']['diff'])
     data=data.iloc[:,2:]
     data.columns=['行业名称','资金净流入']
     data['资金净流入']=data['资金净流入'].apply(lambda x: round(float(x)/100000000,3))
@@ -222,10 +227,10 @@ industry_money=get_industry()
 #获取股票主力排名
 st.cache_data(ttl=60)
 def best_data():
-    url='https://push2.eastmoney.com/api/qt/clist/get?cb=jQuery112309128099157586371_1699335863813&fid=f184&po=1&pz=50&pn=1&np=1&fltt=2&invt=2&fields=f2%2Cf3%2Cf12%2Cf13%2Cf14%2Cf62%2Cf184%2Cf225%2Cf165%2Cf263%2Cf109%2Cf175%2Cf264%2Cf160%2Cf100%2Cf124%2Cf265%2Cf1&ut=b2884a393a59ad64002292a3e90d46a5&fs=m%3A0%2Bt%3A6%2Bf%3A!2%2Cm%3A0%2Bt%3A13%2Bf%3A!2%2Cm%3A0%2Bt%3A80%2Bf%3A!2%2Cm%3A1%2Bt%3A2%2Bf%3A!2%2Cm%3A1%2Bt%3A23%2Bf%3A!2%2Cm%3A0%2Bt%3A7%2Bf%3A!2%2Cm%3A1%2Bt%3A3%2Bf%3A!2'
+    url='https://push2.eastmoney.com/api/qt/clist/get?fid=f184&po=1&pz=50&pn=1&np=1&fltt=2&invt=2&fields=f2%2Cf3%2Cf12%2Cf13%2Cf14%2Cf62%2Cf184%2Cf225%2Cf165%2Cf263%2Cf109%2Cf175%2Cf264%2Cf160%2Cf100%2Cf124%2Cf265%2Cf1&ut=b2884a393a59ad64002292a3e90d46a5&fs=m%3A0%2Bt%3A6%2Bf%3A!2%2Cm%3A0%2Bt%3A13%2Bf%3A!2%2Cm%3A0%2Bt%3A80%2Bf%3A!2%2Cm%3A1%2Bt%3A2%2Bf%3A!2%2Cm%3A1%2Bt%3A23%2Bf%3A!2%2Cm%3A0%2Bt%3A7%2Bf%3A!2%2Cm%3A1%2Bt%3A3%2Bf%3A!2'
     r=requests.get(url)
     data_text=r.text
-    df=pd.DataFrame(json.loads(data_text[42:-2])['data']['diff']).iloc[:20,:]
+    df=pd.DataFrame(orjson.loads(data_text)['data']['diff']).iloc[:20,:]
     df1=df[['f12','f14','f100','f2','f225','f263','f264']]
     df1.columns=['股票代码','股票名称','行业','最新价','今日排名','5日排名','10日排名']
     df1.loc[:,'最新价']=df1.loc[:,'最新价'].apply(lambda x: round(x,2))
@@ -235,10 +240,10 @@ best_stock_data=best_data()
 #北向资金情况
 @st.cache_data(ttl=600)
 def north_money():
-    url='https://push2his.eastmoney.com/api/qt/kamt.kline/get?fields1=f1,f3,f5&fields2=f51,f52&klt=101&lmt=500&ut=b2884a393a59ad64002292a3e90d46a5&cb=jQuery112309386865849321027_1699336618719&_=1699336618731'
+    url='https://push2his.eastmoney.com/api/qt/kamt.kline/get?fields1=f1,f3,f5&fields2=f51,f52&klt=101&lmt=500&ut=b2884a393a59ad64002292a3e90d46a5&_=1699336618731'
     r=requests.get(url)
     data_text=r.text
-    data=pd.DataFrame([items.split(',') for items in json.loads(data_text[data_text.find('(')+1:-2])['data']['s2n']])
+    data=pd.DataFrame([items.split(',') for items in orjson.loads(data_text)['data']['s2n']])
     data.columns=['date','北向资金净流入']
     data.loc[:,'北向资金净流入']=data.loc[:,'北向资金净流入'].apply(lambda x: round(float(x)/10000,2))
     return data
@@ -246,10 +251,10 @@ north_money1=north_money()
 #CPI数据
 @st.cache_data(ttl=6000)
 def chinese_cpi_index():
-    url='https://datacenter-web.eastmoney.com/api/data/v1/get?callback=datatable1798191&columns=REPORT_DATE%2CTIME%2CNATIONAL_SAME%2CNATIONAL_BASE%2CNATIONAL_SEQUENTIAL%2CNATIONAL_ACCUMULATE%2CCITY_SAME%2CCITY_BASE%2CCITY_SEQUENTIAL%2CCITY_ACCUMULATE%2CRURAL_SAME%2CRURAL_BASE%2CRURAL_SEQUENTIAL%2CRURAL_ACCUMULATE&pageNumber=1&pageSize=50&sortColumns=REPORT_DATE&sortTypes=-1&source=WEB&client=WEB&reportName=RPT_ECONOMY_CPI&p=1&pageNo=1&pageNum=1&_=1699337739366'
+    url='https://datacenter-web.eastmoney.com/api/data/v1/get?columns=REPORT_DATE%2CTIME%2CNATIONAL_SAME%2CNATIONAL_BASE%2CNATIONAL_SEQUENTIAL%2CNATIONAL_ACCUMULATE%2CCITY_SAME%2CCITY_BASE%2CCITY_SEQUENTIAL%2CCITY_ACCUMULATE%2CRURAL_SAME%2CRURAL_BASE%2CRURAL_SEQUENTIAL%2CRURAL_ACCUMULATE&pageNumber=1&pageSize=50&sortColumns=REPORT_DATE&sortTypes=-1&source=WEB&client=WEB&reportName=RPT_ECONOMY_CPI&p=1&pageNo=1&pageNum=1&_=1699337739366'
     r=requests.get(url)
     data_text=r.text
-    df=pd.DataFrame(json.loads(data_text[17:-2])['result']['data'])
+    df=pd.DataFrame(orjson.loads(data_text)['result']['data'])
     df1=df[['REPORT_DATE','NATIONAL_BASE','CITY_BASE','RURAL_BASE']]
     df1.columns=['date','全国','城市','农村']
     df1.loc[:,'date']=pd.to_datetime(df1.loc[:,'date'])
@@ -260,10 +265,10 @@ cpi=chinese_cpi_index()
 #PPI
 @st.cache_data(ttl=6000)
 def get_ppi():
-    url='https://datacenter-web.eastmoney.com/api/data/v1/get?callback=datatable6955761&columns=REPORT_DATE%2CTIME%2CBASE%2CBASE_SAME%2CBASE_ACCUMULATE&pageNumber=1&pageSize=50&sortColumns=REPORT_DATE&sortTypes=-1&source=WEB&client=WEB&reportName=RPT_ECONOMY_PPI&p=1&pageNo=1&pageNum=1&_=1699338734836'
+    url='https://datacenter-web.eastmoney.com/api/data/v1/get?columns=REPORT_DATE%2CTIME%2CBASE%2CBASE_SAME%2CBASE_ACCUMULATE&pageNumber=1&pageSize=50&sortColumns=REPORT_DATE&sortTypes=-1&source=WEB&client=WEB&reportName=RPT_ECONOMY_PPI&p=1&pageNo=1&pageNum=1&_=1699338734836'
     r=requests.get(url)
     data_text=r.text
-    df=pd.DataFrame(json.loads(data_text[17:-2])['result']['data'])
+    df=pd.DataFrame(orjson.loads(data_text)['result']['data'])
     df=df[['REPORT_DATE','BASE','BASE_ACCUMULATE']]
     df.columns=['date','当月','累计']
     df.loc[:,'date']=pd.to_datetime(df.loc[:,'date'])
@@ -274,10 +279,10 @@ ppi=get_ppi()
 #PMI
 @st.cache_data(ttl=6000)
 def get_pmi():
-    url='https://datacenter-web.eastmoney.com/api/data/v1/get?callback=datatable5700962&columns=REPORT_DATE%2CTIME%2CMAKE_INDEX%2CMAKE_SAME%2CNMAKE_INDEX%2CNMAKE_SAME&pageNumber=1&pageSize=100&sortColumns=REPORT_DATE&sortTypes=-1&source=WEB&client=WEB&reportName=RPT_ECONOMY_PMI&p=1&pageNo=1&pageNum=1&_=1699339188452'
+    url='https://datacenter-web.eastmoney.com/api/data/v1/get?columns=REPORT_DATE%2CTIME%2CMAKE_INDEX%2CMAKE_SAME%2CNMAKE_INDEX%2CNMAKE_SAME&pageNumber=1&pageSize=100&sortColumns=REPORT_DATE&sortTypes=-1&source=WEB&client=WEB&reportName=RPT_ECONOMY_PMI&p=1&pageNo=1&pageNum=1&_=1699339188452'
     r=requests.get(url)
     data_text=r.text
-    df=pd.DataFrame(json.loads(data_text[17:-2])['result']['data'])
+    df=pd.DataFrame(orjson.loads(data_text)['result']['data'])
     df=df[['REPORT_DATE','MAKE_INDEX','NMAKE_INDEX']]
     df.columns=['date','制造业','非制造业']
     df.loc[:,'date']=pd.to_datetime(df.loc[:,'date'])
@@ -287,9 +292,9 @@ pmi=get_pmi()
 #上海间隔夜拆借利率
 @st.cache_data(ttl=6000)
 def get_shibor():
-    r=requests.get('https://datacenter-web.eastmoney.com/api/data/v1/get?callback=datatable8889269&reportName=RPT_IMP_INTRESTRATEN&columns=REPORT_DATE%2CREPORT_PERIOD%2CIR_RATE%2CCHANGE_RATE%2CINDICATOR_ID%2CLATEST_RECORD%2CMARKET%2CMARKET_CODE%2CCURRENCY%2CCURRENCY_CODE&quoteColumns=&filter=(LATEST_RECORD%3D1)(MARKET_CODE%3D%22001%22)&pageNumber=1&pageSize=20&sortTypes=1&sortColumns=INDICATOR_ID&source=WEB&client=WEB&_=1699339690131')
+    r=requests.get('https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=RPT_IMP_INTRESTRATEN&columns=REPORT_DATE%2CREPORT_PERIOD%2CIR_RATE%2CCHANGE_RATE%2CINDICATOR_ID%2CLATEST_RECORD%2CMARKET%2CMARKET_CODE%2CCURRENCY%2CCURRENCY_CODE&quoteColumns=&filter=(LATEST_RECORD%3D1)(MARKET_CODE%3D%22001%22)&pageNumber=1&pageSize=20&sortTypes=1&sortColumns=INDICATOR_ID&source=WEB&client=WEB&_=1699339690131')
     data_text=r.text
-    df=pd.DataFrame(json.loads(data_text[17:-2])['result']['data'])
+    df=pd.DataFrame(orjson.loads(data_text)['result']['data'])
     df=df[['REPORT_DATE','REPORT_PERIOD','IR_RATE','CHANGE_RATE','MARKET']]
     df.columns=['date','品种','利率(%)','涨跌(BP)','市场']
     df['date']=pd.to_datetime(df['date'])
