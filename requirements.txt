@@ -18,3 +18,4 @@ pyecharts==2.0.3
 statsmodels==0.14.0
 holoviews==1.15.4
 pillow==9.4.0
+orjson==3.9.5
