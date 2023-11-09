@@ -36,7 +36,7 @@ name_list=['沪深300','中证500','上证50','中证1000','中证800','科创50
 def get_data():
   all_df=pd.DataFrame()
   for i,j in zip(index_list,name_list):
-      df = pro.index_daily(ts_code=i,fields=[
+      df = pro.index_daily(ts_code=i,start_date='20200101',fields=[
           "trade_date",
           "close"])
       df.loc[:,'trade_date']=pd.to_datetime(df.loc[:,'trade_date'])
@@ -276,8 +276,8 @@ df_all=pd.merge(barra_factor,all_data1,left_index=True,right_index=True,how='lef
 def cal_barra(df_all):
     all1=df_all.copy()
     all1=all1.iloc[-252:,]
-    ddd=pd.concat([ barra_ana(all1,i)[0] for i in ['沪深300','中证500','中证1000','中证800','上证50','创业板']])
-    ddd.insert(0,'指数名称',['沪深300','中证500','中证1000','中证800','上证50','创业板'])
+    ddd=pd.concat([ barra_ana(all1,i)[0] for i in ['沪深300','中证500','中证1000','中证800','上证50','科创50']])
+    ddd.insert(0,'指数名称',['沪深300','中证500','中证1000','中证800','上证50','科创50'])
     for i in ddd.columns[1:]:
       ddd[i]=ddd[i].apply(lambda x: round(x,3))
     D=ddd.T
