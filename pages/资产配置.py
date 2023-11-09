@@ -28,22 +28,30 @@ global_index_list=[f'http://push2his.eastmoney.com/api/qt/stock/kline/get?secid=
                   for i in ['100.NDX','100.SPX','100.HSI','100.N225','101.GC00Y','100.FTSE','100.GDAXI','1.000300','1.000905','1.000906','1.000852','1.000016']]
 
 global_name=['纳斯达克','标普500','恒生指数','日经225','黄金指数','富时100','德国DAX30','沪深300','中证500','上证50','中证1000','中证800']
-@st.cache_data(ttl=60)
+
+@st.cache_data(ttl=600)
 def get_data():
     data=[]
-    for url , i in zip(global_index_list,global_name):
-        r=requests.get(url)
-        data_text =  r.text
-        df=orjson.loads(data_text)
-        temp_df=pd.DataFrame([item.split(",") for item in df["data"]["klines"]]).iloc[:,:5]
-        temp_df.columns = ["date", "open", "close", "high", "low"]
-        temp_df=temp_df[['date','close']]
-        temp_df['date']=pd.to_datetime(temp_df['date'])
-        temp_df["close"] = pd.to_numeric(temp_df["close"], errors="coerce")
-        temp_df=temp_df.rename(columns={'close':i})
-        temp_df=temp_df.set_index('date')
-        data.append(temp_df)
+    async def global_index_kline(url,i) :
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as r:
+                data_text = await r.text()
+                df=orjson.loads(data_text)
+                temp_df=pd.DataFrame([item.split(",") for item in df["data"]["klines"]]).iloc[:,:5]
+                temp_df.columns = ["date", "open", "close", "high", "low"]
+                temp_df=temp_df[['date','close']]
+                temp_df['date']=pd.to_datetime(temp_df['date'])
+                temp_df["close"] = pd.to_numeric(temp_df["close"], errors="coerce")
+                temp_df=temp_df.rename(columns={'close':i})
+                temp_df=temp_df.set_index('date')
+                data.append(temp_df)
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    tasks = [global_index_kline(url,i) for url,i in zip(global_index_list,global_name)]
+    loop.run_until_complete(asyncio.wait(tasks))
+
     global_index_df=pd.concat(data,axis=1).fillna(method='pad',axis=0).dropna()
+
     bond_df = ak.bond_new_composite_index_cbond(indicator="财富", period="总值").rename(columns={'value':'中债财富总值'})
     bond_df['date']=pd.to_datetime(bond_df['date'])
     bond_df=bond_df.set_index('date')
