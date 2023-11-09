@@ -187,13 +187,9 @@ simu_index=load_simu_index()
 #获取概念板块主力近5日资金流入
 @st.cache_data(ttl=60)
 def get_tech_data():
-    url='https://push2.eastmoney.com/api/qt/clist/get?fid=f164&po=1&pz=500&pn=1&np=1&fltt=2&invt=2&ut=b2884a393a59ad64002292a3e90d46a5&fs=m%3A90+t%3A3&fields=f12%2Cf14%2Cf2%2Cf109%2Cf164%2Cf165%2Cf166%2Cf167%2Cf168%2Cf169%2Cf170%2Cf171%2Cf172%2Cf173%2Cf257%2Cf258%2Cf124%2Cf1%2Cf13'
-    r=requests.get(url)
-    data_text=r.text
-    df=pd.DataFrame(orjson.loads(data_text)['data']['diff'])
-    df1=df.loc[:,['f14','f164']]
+    stock_fund_flow_concept_df = ak.stock_fund_flow_concept(symbol="5日排行")
+    df1=stock_fund_flow_concept_df[['行业','净额']].sort_values(by='净额',ascending=False)
     df1.columns=['概念名称','主力净流入']
-    df1['主力净流入']=df1['主力净流入'].apply(lambda x: round(x/100000000,2))
     return df1
 tech_data=get_tech_data()
 
@@ -216,18 +212,10 @@ money=money.set_index('date')
 #获取板块今日资金净流入情况
 @st.cache_data(ttl=60)
 def get_industry():
-    data1=[]
-    for i in [1,2]:
-        url=f'https://push2.eastmoney.com/api/qt/clist/get?pn={i}&pz=50&po=1&np=1&fields=f12%2Cf13%2Cf14%2Cf62&fid=f62&fs=m%3A90%2Bt%3A2&ut=b2884a393a59ad64002292a3e90d46a5&_=1699335338729'
-        r=requests.get(url)
-        data_text=r.text
-        data=pd.DataFrame(orjson.loads(data_text)['data']['diff'])
-        data=data.iloc[:,2:]
-        data.columns=['行业名称','资金净流入']
-        data['资金净流入']=data['资金净流入'].apply(lambda x: round(float(x)/100000000,3))
-        data1.append(data)
-    da=pd.concat(data1,ignore_index=True)
-    return da
+    stock_fund_flow_industry_df = ak.stock_fund_flow_industry(symbol="5日排行")
+    df=stock_fund_flow_industry_df[['行业','净额']].sort_values(by='净额',ascending=False)
+    df.columns=['行业名称','资金净流入']
+    return df
 industry_money=get_industry()
 
 #获取股票主力排名
