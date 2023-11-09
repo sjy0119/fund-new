@@ -47,7 +47,7 @@ def get_data():
   return all_df
 #所有指数数据
 all_data=get_data()
-st.dataframe(all_data)
+
 #2.读取barra因子收益率数据
 @st.cache_data(ttl=6000)
 def load_barra_data():
