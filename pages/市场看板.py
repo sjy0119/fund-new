@@ -248,7 +248,7 @@ def chinese_cpi_index():
     url='https://datacenter-web.eastmoney.com/api/data/v1/get?columns=REPORT_DATE%2CTIME%2CNATIONAL_SAME%2CNATIONAL_BASE%2CNATIONAL_SEQUENTIAL%2CNATIONAL_ACCUMULATE%2CCITY_SAME%2CCITY_BASE%2CCITY_SEQUENTIAL%2CCITY_ACCUMULATE%2CRURAL_SAME%2CRURAL_BASE%2CRURAL_SEQUENTIAL%2CRURAL_ACCUMULATE&pageNumber=1&pageSize=50&sortColumns=REPORT_DATE&sortTypes=-1&source=WEB&client=WEB&reportName=RPT_ECONOMY_CPI&p=1&pageNo=1&pageNum=1&_=1699337739366'
     r=requests.get(url)
     data_text=r.text
-    df=pd.DataFrame(orjson.loads(data_text)['result']['data'])
+    df=pd.DataFrame(eval(data_text)['result']['data'])
     df1=df[['REPORT_DATE','NATIONAL_BASE','CITY_BASE','RURAL_BASE']]
     df1.columns=['date','全国','城市','农村']
     df1.loc[:,'date']=pd.to_datetime(df1.loc[:,'date'])
