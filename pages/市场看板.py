@@ -14,6 +14,8 @@ import aiohttp
 import requests
 import orjson
 from akshare.utils import demjson
+import tushare as ts
+pro = ts.pro_api('8e812052c92d7a829f0e3b0197d248e48bb2ba3efbbaa60f505e6852')
 import warnings
 warnings.filterwarnings("ignore")
 plt.rcParams['font.sans-serif']=['SimHei']
@@ -27,35 +29,22 @@ st.markdown('4.宏观指标情况及私募策略指数情况')
 
 #爬虫函数定义模块
 #1.爬取市场主要指数的收盘价数据
-global_index_list=[f'http://push2his.eastmoney.com/api/qt/stock/kline/get?secid={i}&fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&lmt=58&klt=101&fqt=1&beg=20070115&end=20500101&ut=4f1862fc3b5e77c150a2b985b12db0fd'
-                  for i in ['1.000300','1.000905','1.000906','1.000852','1.000016','0.399006']]
+index_list=['000300.SH','000905.SH','000906.SH','000852.SH','000016.SH','000688.SH']
+name_list=['沪深300','中证500','上证50','中证1000','中证800','科创50']
 
-global_name=['沪深300','中证500','上证50','中证1000','中证800','创业板']
-
-@st.cache_data(ttl=600)
+@st.cache_data(ttl=12000)
 def get_data():
-    data=[]
-    async def global_index_kline(url,i) :
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url) as r:
-                data_text = await r.text()
-                df=orjson.loads(data_text)
-                temp_df=pd.DataFrame([item.split(",") for item in df["data"]["klines"]]).iloc[:,:5]
-                temp_df.columns = ["date", "open", "close", "high", "low"]
-                temp_df=temp_df[['date','close']]
-                temp_df['date']=pd.to_datetime(temp_df['date'])
-                temp_df["close"] = pd.to_numeric(temp_df["close"], errors="coerce")
-                temp_df=temp_df.rename(columns={'close':i})
-                temp_df=temp_df.set_index('date')
-                data.append(temp_df)
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    tasks = [global_index_kline(url,i) for url,i in zip(global_index_list,global_name)]
-    loop.run_until_complete(asyncio.wait(tasks))
-
-    global_index_df=pd.concat(data,axis=1).fillna(method='pad',axis=0)
-  
-    return global_index_df
+  all_df=pd.DataFrame()
+  for i,j in zip(index_list,name_list):
+      df = pro.index_daily(ts_code=i,fields=[
+          "trade_date",
+          "close"])
+      df.loc[:,'trade_date']=pd.to_datetime(df.loc[:,'trade_date'])
+      df=df.sort_values(by='trade_date')
+      df=df.rename(columns={'close':j,'trade_date':'date'})
+      df=df.set_index('date')
+      all_df=pd.concat([all_df,df],axis=1)
+    return all_df
 #所有指数数据
 all_data=get_data()
 st.dataframe(all_data)
