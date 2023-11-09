@@ -216,7 +216,7 @@ money=money.set_index('date')
 #获取板块今日资金净流入情况
 @st.cache_data(ttl=60)
 def get_industry():
-    url='https://push2.eastmoney.com/api/qt/clist/get?pn=1&pz=500&po=1&np=1&fields=f12%2Cf13%2Cf14%2Cf62&fid=f62&fs=m%3A90%2Bt%3A2&ut=b2884a393a59ad64002292a3e90d46a5&_=1699335338729'
+    url='https://push2.eastmoney.com/api/qt/clist/get?pn=1&pz=90&po=1&np=1&fields=f12%2Cf13%2Cf14%2Cf62&fid=f62&fs=m%3A90%2Bt%3A2&ut=b2884a393a59ad64002292a3e90d46a5&_=1699335338729'
     r=requests.get(url)
     data_text=r.text
     data=pd.DataFrame(orjson.loads(data_text)['data']['diff'])
