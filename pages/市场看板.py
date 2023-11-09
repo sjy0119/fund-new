@@ -245,42 +245,27 @@ north_money1=north_money()
 #CPI数据
 @st.cache_data(ttl=6000)
 def chinese_cpi_index():
-    url='https://datacenter-web.eastmoney.com/api/data/v1/get?columns=REPORT_DATE%2CTIME%2CNATIONAL_SAME%2CNATIONAL_BASE%2CNATIONAL_SEQUENTIAL%2CNATIONAL_ACCUMULATE%2CCITY_SAME%2CCITY_BASE%2CCITY_SEQUENTIAL%2CCITY_ACCUMULATE%2CRURAL_SAME%2CRURAL_BASE%2CRURAL_SEQUENTIAL%2CRURAL_ACCUMULATE&pageNumber=1&pageSize=50&sortColumns=REPORT_DATE&sortTypes=-1&source=WEB&client=WEB&reportName=RPT_ECONOMY_CPI&p=1&pageNo=1&pageNum=1&_=1699337739366'
-    r=requests.get(url)
-    data_text=r.text
-    df=pd.DataFrame(eval(data_text)['result']['data'])
-    df1=df[['REPORT_DATE','NATIONAL_BASE','CITY_BASE','RURAL_BASE']]
-    df1.columns=['date','全国','城市','农村']
-    df1.loc[:,'date']=pd.to_datetime(df1.loc[:,'date'])
-    df1=df1.sort_values(by='date')
-    df1=df1.set_index('date')
-    return df1
+    macro_china_cpi_monthly_df = ak.macro_china_cpi_monthly()
+    df=pd.DataFrame(macro_china_cpi_monthly_df)
+    df.index.name='date'
+    return df
 cpi=chinese_cpi_index()
 #PPI
 @st.cache_data(ttl=6000)
 def get_ppi():
-    url='https://datacenter-web.eastmoney.com/api/data/v1/get?columns=REPORT_DATE%2CTIME%2CBASE%2CBASE_SAME%2CBASE_ACCUMULATE&pageNumber=1&pageSize=50&sortColumns=REPORT_DATE&sortTypes=-1&source=WEB&client=WEB&reportName=RPT_ECONOMY_PPI&p=1&pageNo=1&pageNum=1&_=1699338734836'
-    r=requests.get(url)
-    data_text=r.text
-    df=pd.DataFrame(orjson.loads(data_text)['result']['data'])
-    df=df[['REPORT_DATE','BASE','BASE_ACCUMULATE']]
-    df.columns=['date','当月','累计']
-    df.loc[:,'date']=pd.to_datetime(df.loc[:,'date'])
-    df=df.sort_values(by='date')
-    df=df.set_index('date')
+    macro_china_ppi_yearly_df = ak.macro_china_ppi_yearly()
+    df=pd.DataFrame(macro_china_ppi_yearly_df)
+    df.index.name='date'
     return df
 ppi=get_ppi()
 #PMI
 @st.cache_data(ttl=6000)
 def get_pmi():
-    url='https://datacenter-web.eastmoney.com/api/data/v1/get?columns=REPORT_DATE%2CTIME%2CMAKE_INDEX%2CMAKE_SAME%2CNMAKE_INDEX%2CNMAKE_SAME&pageNumber=1&pageSize=100&sortColumns=REPORT_DATE&sortTypes=-1&source=WEB&client=WEB&reportName=RPT_ECONOMY_PMI&p=1&pageNo=1&pageNum=1&_=1699339188452'
-    r=requests.get(url)
-    data_text=r.text
-    df=pd.DataFrame(orjson.loads(data_text)['result']['data'])
-    df=df[['REPORT_DATE','MAKE_INDEX','NMAKE_INDEX']]
-    df.columns=['date','制造业','非制造业']
-    df.loc[:,'date']=pd.to_datetime(df.loc[:,'date'])
-    df=df.sort_values(by='date').set_index('date')
+    macro_china_pmi_yearly_df = ak.macro_china_pmi_yearly()
+    macro_china_non_man_pmi_df = ak.macro_china_non_man_pmi()
+    df=pd.concat([macro_china_pmi_yearly_df,macro_china_non_man_pmi_df],axis=1)
+    df.index.name='date'
+    df.columns=['制造业','非制造业']
     return df
 pmi=get_pmi()
 #上海间隔夜拆借利率
