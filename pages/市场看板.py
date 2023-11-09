@@ -174,7 +174,7 @@ def load_simu_index():
     return df_all
 simu_index=load_simu_index()
 #获取概念板块主力近5日资金流入
-@st.cache_data(ttl=60)
+@st.cache_data(ttl=600)
 def get_tech_data():
     stock_fund_flow_concept_df = ak.stock_fund_flow_concept(symbol="5日排行")
     df1=stock_fund_flow_concept_df[['行业','净额']].sort_values(by='净额',ascending=False)
@@ -199,7 +199,7 @@ money=get_money_flow()
 money['date']=pd.to_datetime(money['date'])
 money=money.set_index('date')
 #获取板块今日资金净流入情况
-@st.cache_data(ttl=60)
+@st.cache_data(ttl=600)
 def get_industry():
     stock_fund_flow_industry_df = ak.stock_fund_flow_industry(symbol="5日排行")
     df=stock_fund_flow_industry_df[['行业','净额']].sort_values(by='净额',ascending=False)
@@ -208,7 +208,7 @@ def get_industry():
 industry_money=get_industry()
 
 #获取股票主力排名
-st.cache_data(ttl=60)
+st.cache_data(ttl=600)
 def best_data():
     url='https://push2.eastmoney.com/api/qt/clist/get?fid=f184&po=1&pz=50&pn=1&np=1&fltt=2&invt=2&fields=f2%2Cf3%2Cf12%2Cf13%2Cf14%2Cf62%2Cf184%2Cf225%2Cf165%2Cf263%2Cf109%2Cf175%2Cf264%2Cf160%2Cf100%2Cf124%2Cf265%2Cf1&ut=b2884a393a59ad64002292a3e90d46a5&fs=m%3A0%2Bt%3A6%2Bf%3A!2%2Cm%3A0%2Bt%3A13%2Bf%3A!2%2Cm%3A0%2Bt%3A80%2Bf%3A!2%2Cm%3A1%2Bt%3A2%2Bf%3A!2%2Cm%3A1%2Bt%3A23%2Bf%3A!2%2Cm%3A0%2Bt%3A7%2Bf%3A!2%2Cm%3A1%2Bt%3A3%2Bf%3A!2'
     r=requests.get(url)
@@ -326,7 +326,7 @@ with st.container():
         go.Bar(x=chinese_index_name_list,  # x轴数据
                y=week_return,text=week_return,textposition="outside" # y轴数据
               )))
-   fig.update_layout(title_text='主要指数的周度涨跌幅:'+all_data.index[-1].strftime('%Y-%m-%d')) 
+   fig.update_layout(title_text='主要指数的近5日涨跌幅:'+all_data.index[-1].strftime('%Y-%m-%d')) 
    st.plotly_chart(fig)
 
    fi8 = go.Figure()
@@ -342,6 +342,7 @@ with st.container():
                     y=1.02,
                     xanchor="center",
                     x=0.5)) 
+   fi8.update_xaxes(rangeslider_visible=True,linecolor='#c5c5c5')
    st.markdown('**各指数5日时序波动率**')
    st.plotly_chart(fi8)
 
@@ -358,6 +359,7 @@ with st.container():
                     y=1.02,
                     xanchor="center",
                     x=0.5)) 
+   fi9.update_xaxes(rangeslider_visible=True,linecolor='#c5c5c5')
    st.markdown('**各指数10日时序波动率**')
    st.plotly_chart(fi9)
 
@@ -596,7 +598,8 @@ with st.container():
                     y=1.02,
                     xanchor="center",
                     x=0.5)) 
-   st.markdown('**CPI指数**')
+   fi13.update_xaxes(rangeslider_visible=True,linecolor='#c5c5c5')
+   st.markdown('**中国 CPI 月率报告**')
    st.plotly_chart(fi13)
 
    fi14 = go.Figure()
@@ -612,7 +615,8 @@ with st.container():
                     y=1.02,
                     xanchor="center",
                     x=0.5)) 
-   st.markdown('**PMI指数**')
+   fi14.update_xaxes(rangeslider_visible=True,linecolor='#c5c5c5')
+   st.markdown('**中国年度PMI数据**')
    st.plotly_chart(fi14)
 
    fi15 = go.Figure()
@@ -628,7 +632,8 @@ with st.container():
                     y=1.02,
                     xanchor="center",
                     x=0.5)) 
-   st.markdown('**PPI指数**')
+   fi15.update_xaxes(rangeslider_visible=True,linecolor='#c5c5c5')
+   st.markdown('**中国 PPI 年率报告**')
    st.plotly_chart(fi15)
 
 
