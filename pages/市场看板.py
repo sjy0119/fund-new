@@ -508,7 +508,7 @@ with st.container():
     '残差波动率因子暴露',
     '市值因子暴露'] 
    data__=[]
-   for i,j in zip(['沪深300','中证500','中证1000','中证800','上证50','创业板'],range(7)):
+   for i,j in zip(['沪深300','中证500','中证1000','中证800','上证50','科创50'],range(7)):
     data__.append(go.Scatterpolar(name=i,theta=categories,r=list(exposure.iloc[:,j].values[1:]),fill='toself'))
    fi41 = go.Figure(data=data__)
    fi41.update_layout(polar=dict(
