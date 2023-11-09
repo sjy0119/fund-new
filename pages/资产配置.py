@@ -14,6 +14,8 @@ from akshare.utils import demjson
 import orjson
 import requests
 import warnings
+import tushare as ts
+pro = ts.pro_api('8e812052c92d7a829f0e3b0197d248e48bb2ba3efbbaa60f505e6852')
 warnings.filterwarnings("ignore")
 plt.rcParams['font.sans-serif']=['SimHei']
 plt.rcParams['axes.unicode_minus'] =False 
@@ -24,40 +26,42 @@ st.markdown("# 大类资产配置")
 st.sidebar.header("大类资产配置")
 
 
-global_index_list=[f'http://push2his.eastmoney.com/api/qt/stock/kline/get?secid={i}&fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&lmt=58&klt=101&fqt=1&beg=20070115&end=20500101&ut=4f1862fc3b5e77c150a2b985b12db0fd'
-                  for i in ['100.NDX','100.SPX','100.HSI','100.N225','101.GC00Y','100.FTSE','100.GDAXI','1.000300','1.000905','1.000906','1.000852','1.000016']]
-
-global_name=['纳斯达克','标普500','恒生指数','日经225','黄金指数','富时100','德国DAX30','沪深300','中证500','上证50','中证1000','中证800']
-
-@st.cache_data(ttl=600)
+index_list=['000300.SH','000905.SH','000906.SH','000852.SH','000016.SH','000688.SH']
+global_list=['IXIC','SPX','HSI','N225','FTSE','GDAXI']
+global_name=['纳斯达克','标普500','恒生指数','日经225','富时100','德国DAX30']
+name_list=['沪深300','中证500','上证50','中证1000','中证800','科创50']
+@st.cache_data(ttl=12000)
 def get_data():
-    data=[]
-    async def global_index_kline(url,i) :
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url) as r:
-                data_text = await r.text()
-                df=orjson.loads(data_text)
-                temp_df=pd.DataFrame([item.split(",") for item in df["data"]["klines"]]).iloc[:,:5]
-                temp_df.columns = ["date", "open", "close", "high", "low"]
-                temp_df=temp_df[['date','close']]
-                temp_df['date']=pd.to_datetime(temp_df['date'])
-                temp_df["close"] = pd.to_numeric(temp_df["close"], errors="coerce")
-                temp_df=temp_df.rename(columns={'close':i})
-                temp_df=temp_df.set_index('date')
-                data.append(temp_df)
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    tasks = [global_index_kline(url,i) for url,i in zip(global_index_list,global_name)]
-    loop.run_until_complete(asyncio.wait(tasks))
+  all_df=pd.DataFrame()
+  for i,j in zip(index_list,name_list):
+      df = pro.index_daily(ts_code=i,start_date='20100101',fields=[
+  
+          "trade_date",
+          "close"])
+      df.loc[:,'trade_date']=pd.to_datetime(df.loc[:,'trade_date'])
+      df=df.sort_values(by='trade_date')
+      df=df.rename(columns={'close':j,'trade_date':'date'})
+      df=df.set_index('date')
+      all_df=pd.concat([all_df,df],axis=1)
+  all_df1=pd.DataFrame()
+  for x,y in zip(global_list,global_name):
+      df = pro.index_global(ts_code=x,start_date='20100101',fields=[
+  
+          "trade_date",
+          "close"])
+      df.loc[:,'trade_date']=pd.to_datetime(df.loc[:,'trade_date'])
+      df=df.sort_values(by='trade_date')
+      df=df.rename(columns={'close':y,'trade_date':'date'})
+      df=df.set_index('date')
+      all_df1=pd.concat([all_df1,df],axis=1)
+  global_index_df=pd.concat([all_df,all_df1],axis=1).fillna(method='pad',axis=0)
+   
+  bond_df = ak.bond_new_composite_index_cbond(indicator="财富", period="总值").rename(columns={'value':'中债财富总值'})
+  bond_df['date']=pd.to_datetime(bond_df['date'])
+  bond_df=bond_df.set_index('date')
+  df_all_=pd.concat([global_index_df,bond_df],axis=1).fillna(method='pad',axis=0).dropna()
 
-    global_index_df=pd.concat(data,axis=1).fillna(method='pad',axis=0).dropna()
-
-    bond_df = ak.bond_new_composite_index_cbond(indicator="财富", period="总值").rename(columns={'value':'中债财富总值'})
-    bond_df['date']=pd.to_datetime(bond_df['date'])
-    bond_df=bond_df.set_index('date')
-    df_all=pd.concat([global_index_df,bond_df],axis=1).fillna(method='pad',axis=0).dropna()
-
-    return df_all
+    return df_all_
     
 df_all=get_data()
 
@@ -72,7 +76,7 @@ end=str(end_date)
 
 options = st.multiselect(
     '请选择资产名称（多选）',
-    ['纳斯达克','标普500','恒生指数','日经225','黄金指数','富时100','德国DAX30','沪深300','中证500','上证50','中证1000','中证800','中债财富总值']
+    ['纳斯达克','标普500','恒生指数','日经225','富时100','德国DAX30','沪深300','中证500','上证50','中证1000','中证800','中债财富总值']
 )
 
 method = st.selectbox(
