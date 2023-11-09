@@ -44,7 +44,7 @@ def get_data():
       df=df.rename(columns={'close':j,'trade_date':'date'})
       df=df.set_index('date')
       all_df=pd.concat([all_df,df],axis=1)
-    return all_df
+  return all_df
 #所有指数数据
 all_data=get_data()
 st.dataframe(all_data)
