@@ -403,7 +403,7 @@ with st.container():
 
    fig1 = go.Figure(data = (
         go.Bar(x=sw_name,  # x轴数据
-               y=sw_return,text=week_return,textposition="outside" # y轴数据
+               y=sw_return,text=sw_return,textposition="outside" # y轴数据
               )))
    fig1.update_layout(title_text='申万风格指数的周度涨跌幅:'+sw_style.index[-1].strftime('%Y-%m-%d')) 
    st.plotly_chart(fig1)
