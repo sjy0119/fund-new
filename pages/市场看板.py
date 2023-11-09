@@ -376,6 +376,7 @@ with st.container():
                     y=1.02,
                     xanchor="center",
                     x=0.5)) 
+   fi10.update_xaxes(rangeslider_visible=True,linecolor='#c5c5c5')
    st.markdown('**各指数20日时序波动率**')
    st.plotly_chart(fi10)
 
