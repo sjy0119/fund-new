@@ -28,9 +28,9 @@ st.markdown('4.宏观指标情况及私募策略指数情况')
 #爬虫函数定义模块
 #1.爬取市场主要指数的收盘价数据
 global_index_list=[f'http://push2his.eastmoney.com/api/qt/stock/kline/get?secid={i}&fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&lmt=58&klt=101&fqt=1&beg=20070115&end=20500101&ut=4f1862fc3b5e77c150a2b985b12db0fd'
-                  for i in ['1.000300','1.000905','1.000906','1.000852','1.000016','1.000688']]
+                  for i in ['1.000300','1.000905','1.000906','1.000852','1.000016','0.399006']]
 
-global_name=['沪深300','中证500','上证50','中证1000','中证800','科创50']
+global_name=['沪深300','中证500','上证50','中证1000','中证800','创业板']
 
 @st.cache_data(ttl=600)
 def get_data():
@@ -310,8 +310,8 @@ df_all=pd.merge(barra_factor,all_data1,left_index=True,right_index=True,how='lef
 def cal_barra(df_all):
     all1=df_all.copy()
     all1=all1.iloc[-252:,]
-    ddd=pd.concat([ barra_ana(all1,i)[0] for i in ['沪深300','中证500','中证1000','中证800','上证50','科创50']])
-    ddd.insert(0,'指数名称',['沪深300','中证500','中证1000','中证800','上证50','科创50'])
+    ddd=pd.concat([ barra_ana(all1,i)[0] for i in ['沪深300','中证500','中证1000','中证800','上证50','创业板']])
+    ddd.insert(0,'指数名称',['沪深300','中证500','中证1000','中证800','上证50','创业板'])
     for i in ddd.columns[1:]:
       ddd[i]=ddd[i].apply(lambda x: round(x,3))
     D=ddd.T
@@ -539,7 +539,7 @@ with st.container():
     '残差波动率因子暴露',
     '市值因子暴露'] 
    data__=[]
-   for i,j in zip(['沪深300','中证500','中证1000','中证800','上证50','科创50'],range(7)):
+   for i,j in zip(['沪深300','中证500','中证1000','中证800','上证50','创业板'],range(7)):
     data__.append(go.Scatterpolar(name=i,theta=categories,r=list(exposure.iloc[:,j].values[1:]),fill='toself'))
    fi41 = go.Figure(data=data__)
    fi41.update_layout(polar=dict(
