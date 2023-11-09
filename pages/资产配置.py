@@ -61,7 +61,7 @@ def get_data():
   bond_df=bond_df.set_index('date')
   df_all_=pd.concat([global_index_df,bond_df],axis=1).fillna(method='pad',axis=0).dropna()
 
-    return df_all_
+  return df_all_
     
 df_all=get_data()
 
