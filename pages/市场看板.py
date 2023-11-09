@@ -216,14 +216,18 @@ money=money.set_index('date')
 #获取板块今日资金净流入情况
 @st.cache_data(ttl=60)
 def get_industry():
-    url='https://push2.eastmoney.com/api/qt/clist/get?pn=1&pz=90&po=1&np=1&fields=f12%2Cf13%2Cf14%2Cf62&fid=f62&fs=m%3A90%2Bt%3A2&ut=b2884a393a59ad64002292a3e90d46a5&_=1699335338729'
-    r=requests.get(url)
-    data_text=r.text
-    data=pd.DataFrame(orjson.loads(data_text)['data']['diff'])
-    data=data.iloc[:,2:]
-    data.columns=['行业名称','资金净流入']
-    data['资金净流入']=data['资金净流入'].apply(lambda x: round(float(x)/100000000,3))
-    return data
+    data1=[]
+    for i in [1,2]:
+        url=f'https://push2.eastmoney.com/api/qt/clist/get?pn={i}&pz=50&po=1&np=1&fields=f12%2Cf13%2Cf14%2Cf62&fid=f62&fs=m%3A90%2Bt%3A2&ut=b2884a393a59ad64002292a3e90d46a5&_=1699335338729'
+        r=requests.get(url)
+        data_text=r.text
+        data=pd.DataFrame(orjson.loads(data_text)['data']['diff'])
+        data=data.iloc[:,2:]
+        data.columns=['行业名称','资金净流入']
+        data['资金净流入']=data['资金净流入'].apply(lambda x: round(float(x)/100000000,3))
+        data1.append(data)
+    da=pd.concat(data1,ignore_index=True)
+    return da
 industry_money=get_industry()
 
 #获取股票主力排名
