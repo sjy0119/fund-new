@@ -11,7 +11,7 @@ import asyncio
 import aiohttp
 import plotly.graph_objs as go
 from akshare.utils import demjson
-import json
+import orjson
 import requests
 import warnings
 warnings.filterwarnings("ignore")
@@ -24,7 +24,7 @@ st.markdown("# 大类资产配置")
 st.sidebar.header("大类资产配置")
 
 
-global_index_list=[f'http://push2his.eastmoney.com/api/qt/stock/kline/get?secid={i}&fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&lmt=58&klt=101&fqt=1&beg=20070115&end=20500101&ut=4f1862fc3b5e77c150a2b985b12db0fd&cb=cb_1699079114473_83662397&cb_1699079114473_83662397=cb_1699079114473_83662397'
+global_index_list=[f'http://push2his.eastmoney.com/api/qt/stock/kline/get?secid={i}&fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&lmt=58&klt=101&fqt=1&beg=20070115&end=20500101&ut=4f1862fc3b5e77c150a2b985b12db0fd'
                   for i in ['100.NDX','100.SPX','100.HSI','100.N225','101.GC00Y','100.FTSE','100.GDAXI','1.000300','1.000905','1.000906','1.000852','1.000016']]
 
 global_name=['纳斯达克','标普500','恒生指数','日经225','黄金指数','富时100','德国DAX30','沪深300','中证500','上证50','中证1000','中证800']
@@ -34,7 +34,7 @@ def get_data():
     for url , i in zip(global_index_list,global_name):
         r=requests.get(url)
         data_text =  r.text
-        df=eval(data_text[26 :-2])
+        df=orjson.loads(data_text)
         temp_df=pd.DataFrame([item.split(",") for item in df["data"]["klines"]]).iloc[:,:5]
         temp_df.columns = ["date", "open", "close", "high", "low"]
         temp_df=temp_df[['date','close']]
