@@ -222,7 +222,7 @@ def north_money():
     stock_hsgt_north_net_flow_in_em_df.loc[:,'value']=stock_hsgt_north_net_flow_in_em_df.loc[:,'value'].apply(lambda x: round(x/10000,2))
     stock_hsgt_north_net_flow_in_em_df.columns=['date','北向资金净流入']
     stock_hsgt_north_net_flow_in_em_df=stock_hsgt_north_net_flow_in_em_df.set_index('date')
-    stock_hsgt_north_net_flow_in_em_df.index=pd.pd.DatetimeIndex(stock_hsgt_north_net_flow_in_em_df.index)
+    stock_hsgt_north_net_flow_in_em_df.index=pd.DatetimeIndex(stock_hsgt_north_net_flow_in_em_df.index)
     return stock_hsgt_north_net_flow_in_em_df
 north_money1=north_money()
 #获取上证平均市盈率
