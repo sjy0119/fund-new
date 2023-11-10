@@ -222,6 +222,7 @@ def north_money():
     stock_hsgt_north_net_flow_in_em_df.loc[:,'value']=stock_hsgt_north_net_flow_in_em_df.loc[:,'value'].apply(lambda x: round(x/10000,2))
     stock_hsgt_north_net_flow_in_em_df.columns=['date','北向资金净流入']
     stock_hsgt_north_net_flow_in_em_df=stock_hsgt_north_net_flow_in_em_df.set_index('date')
+    stock_hsgt_north_net_flow_in_em_df.index=pd.pd.DatetimeIndex(stock_hsgt_north_net_flow_in_em_df.index)
     return stock_hsgt_north_net_flow_in_em_df
 north_money1=north_money()
 #获取上证平均市盈率
@@ -589,8 +590,7 @@ with st.container():
    fi1.update_xaxes(rangeslider_visible=True,linecolor='#c5c5c5')
    st.plotly_chart(fi1)
    
-   north_money1['date']=pd.to_datetime(north_money1['date'])
-   north_money1=north_money1.set_index('date')
+   
    fi3=go.Figure(data=[go.Scatter(x=north_money1.index.strftime('%Y-%m-%d'),y=list(north_money1['北向资金净流入']),name='北向资金净流入')])
    fi3.update_layout(legend=dict(
                     orientation="h",
