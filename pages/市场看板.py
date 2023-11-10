@@ -203,7 +203,7 @@ def get_industry():
 industry_money=get_industry()
 
 #获取股票主力排名
-st.cache_data(ttl=600)
+@st.cache_data(ttl=600)
 def best_data():
     url='https://push2.eastmoney.com/api/qt/clist/get?fid=f184&po=1&pz=50&pn=1&np=1&fltt=2&invt=2&fields=f2%2Cf3%2Cf12%2Cf13%2Cf14%2Cf62%2Cf184%2Cf225%2Cf165%2Cf263%2Cf109%2Cf175%2Cf264%2Cf160%2Cf100%2Cf124%2Cf265%2Cf1&ut=b2884a393a59ad64002292a3e90d46a5&fs=m%3A0%2Bt%3A6%2Bf%3A!2%2Cm%3A0%2Bt%3A13%2Bf%3A!2%2Cm%3A0%2Bt%3A80%2Bf%3A!2%2Cm%3A1%2Bt%3A2%2Bf%3A!2%2Cm%3A1%2Bt%3A23%2Bf%3A!2%2Cm%3A0%2Bt%3A7%2Bf%3A!2%2Cm%3A1%2Bt%3A3%2Bf%3A!2'
     r=requests.get(url)
@@ -241,7 +241,7 @@ def stock_bond():
     return stock_ebs_lg_df
 stock_bond1=stock_bond()
 #获取大盘拥挤度
-@st.catche_data(ttl=6000)
+@st.cache_data(ttl=6000)
 def get_cross():
     stock_a_congestion_lg_df = ak.stock_a_congestion_lg()
     stock_a_congestion_lg_df.columns=['date','上证指数','大盘拥挤度']
