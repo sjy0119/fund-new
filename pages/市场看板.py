@@ -424,7 +424,7 @@ with st.container():
         go.Bar(x=sw_name,  # x轴数据
                y=sw_return,text=sw_return,textposition="outside" # y轴数据
               )))
-   fig1.update_layout(title_text='申万风格指数的周度涨跌幅:'+sw_style.index[-1].strftime('%Y-%m-%d')) 
+   fig1.update_layout(title_text='申万风格指数近5日绝对收益率:'+sw_style.index[-1].strftime('%Y-%m-%d')) 
    st.plotly_chart(fig1)
    lines1=[]
    for i in sw_year_data.columns:
@@ -443,14 +443,14 @@ with st.container():
         go.Bar(x=sw_1_name,  # x轴数据
                y=sw_1_return,text=sw_1_return,textposition="outside" # y轴数据
               )))
-   fig2.update_layout(title_text='申万一级行业指数的近一月涨跌幅:'+sw_1.index[-1].strftime('%Y-%m-%d')) 
+   fig2.update_layout(title_text='申万一级行业指数的近一月绝对收益率:'+sw_1.index[-1].strftime('%Y-%m-%d')) 
    st.plotly_chart(fig2)
 
    fig3 = go.Figure(data = (
         go.Bar(x=sw_1_name,  # x轴数据
                y=sw_1_return1,text=sw_1_return1,textposition="outside" # y轴数据
               )))
-   fig3.update_layout(title_text='申万一级行业指数的近一年涨跌幅:'+sw_1.index[-1].strftime('%Y-%m-%d')) 
+   fig3.update_layout(title_text='申万一级行业指数的近一年绝对收益率:'+sw_1.index[-1].strftime('%Y-%m-%d')) 
    st.plotly_chart(fig3)
 
    lines2=[]
