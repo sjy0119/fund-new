@@ -178,7 +178,7 @@ def get_tech_data():
 tech_data=get_tech_data()
 
 #获取大盘资金流向
-@st.cache_data(ttl=600)
+@st.cache_data(ttl=6000)
 def get_money_flow():
     url='https://push2his.eastmoney.com/api/qt/stock/fflow/daykline/get?lmt=0&klt=101&fields1=f1%2Cf2%2Cf3%2Cf7&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61%2Cf62%2Cf63%2Cf64%2Cf65&ut=b2884a393a59ad64002292a3e90d46a5&secid=1.000001&secid2=0.399001&_=1699334564623'
     r=requests.get(url)
@@ -203,7 +203,7 @@ def get_industry():
 industry_money=get_industry()
 
 #获取股票主力排名
-@st.cache_data(ttl=600)
+@st.cache_data(ttl=6000)
 def best_data():
     url='https://push2.eastmoney.com/api/qt/clist/get?fid=f184&po=1&pz=50&pn=1&np=1&fltt=2&invt=2&fields=f2%2Cf3%2Cf12%2Cf13%2Cf14%2Cf62%2Cf184%2Cf225%2Cf165%2Cf263%2Cf109%2Cf175%2Cf264%2Cf160%2Cf100%2Cf124%2Cf265%2Cf1&ut=b2884a393a59ad64002292a3e90d46a5&fs=m%3A0%2Bt%3A6%2Bf%3A!2%2Cm%3A0%2Bt%3A13%2Bf%3A!2%2Cm%3A0%2Bt%3A80%2Bf%3A!2%2Cm%3A1%2Bt%3A2%2Bf%3A!2%2Cm%3A1%2Bt%3A23%2Bf%3A!2%2Cm%3A0%2Bt%3A7%2Bf%3A!2%2Cm%3A1%2Bt%3A3%2Bf%3A!2'
     r=requests.get(url)
@@ -216,7 +216,7 @@ def best_data():
 best_stock_data=best_data()
 
 #北向资金情况
-@st.cache_data(ttl=600)
+@st.cache_data(ttl=6000)
 def north_money():
     stock_hsgt_north_net_flow_in_em_df = ak.stock_hsgt_north_net_flow_in_em(symbol="北上")
     stock_hsgt_north_net_flow_in_em_df.loc[:,'value']=stock_hsgt_north_net_flow_in_em_df.loc[:,'value'].apply(lambda x: round(x/10000,2))
