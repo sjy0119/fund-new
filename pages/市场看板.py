@@ -1,19 +1,14 @@
 import pandas as pd
 from scipy.optimize import minimize
 import matplotlib.pyplot as plt
-import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 import pandas as pd
 import numpy as np
-from datetime import datetime, date
 import akshare as ak
 from plotly.figure_factory import create_table
-import asyncio
-import aiohttp
 import requests
 import orjson
-from akshare.utils import demjson
 import tushare as ts
 pro = ts.pro_api('8e812052c92d7a829f0e3b0197d248e48bb2ba3efbbaa60f505e6852')
 import warnings
@@ -223,14 +218,37 @@ best_stock_data=best_data()
 #北向资金情况
 @st.cache_data(ttl=600)
 def north_money():
-    url='https://push2his.eastmoney.com/api/qt/kamt.kline/get?fields1=f1,f3,f5&fields2=f51,f52&klt=101&lmt=500&ut=b2884a393a59ad64002292a3e90d46a5&_=1699336618731'
-    r=requests.get(url)
-    data_text=r.text
-    data=pd.DataFrame([items.split(',') for items in orjson.loads(data_text)['data']['s2n']])
-    data.columns=['date','北向资金净流入']
-    data.loc[:,'北向资金净流入']=data.loc[:,'北向资金净流入'].apply(lambda x: round(float(x)/10000,2))
-    return data
+    stock_hsgt_north_net_flow_in_em_df = ak.stock_hsgt_north_net_flow_in_em(symbol="北上")
+    stock_hsgt_north_net_flow_in_em_df.loc[:,'value']=stock_hsgt_north_net_flow_in_em_df.loc[:,'value'].apply(lambda x: round(x/10000,2))
+    stock_hsgt_north_net_flow_in_em_df.columns=['date','北向资金净流入']
+    stock_hsgt_north_net_flow_in_em_df=stock_hsgt_north_net_flow_in_em_df.set_index('date')
+    return stock_hsgt_north_net_flow_in_em_df
 north_money1=north_money()
+#获取上证平均市盈率
+@st.cache_data(ttl=6000)
+def pe():
+    stock_market_pe_lg_df = ak.stock_market_pe_lg(symbol="上证")
+    stock_market_pe_lg_df=stock_market_pe_lg_df.set_index('日期')
+    stock_market_pe_lg_df.index=pd.DatetimeIndex(stock_market_pe_lg_df.index)
+    return stock_market_pe_lg_df
+pe_=pe()
+#获取股债利差
+@st.cache_data(ttl=6000)
+def stock_bond():
+    stock_ebs_lg_df = ak.stock_ebs_lg()
+    stock_ebs_lg_df=stock_ebs_lg_df.set_index('日期')
+    stock_ebs_lg_df.index=pd.DatetimeIndex(stock_ebs_lg_df.index)
+    return stock_ebs_lg_df
+stock_bond1=stock_bond()
+#获取大盘拥挤度
+@st.catch_data(ttl=6000)
+def get_cross():
+    stock_a_congestion_lg_df = ak.stock_a_congestion_lg()
+    stock_a_congestion_lg_df.columns=['date','上证指数','大盘拥挤度']
+    stock_a_congestion_lg_df=stock_a_congestion_lg_df.set_index('date')
+    stock_a_congestion_lg_df.index=pd.DatetimeIndex(stock_a_congestion_lg_df.index)
+    return stock_a_congestion_lg_df
+cross=get_cross()
 #CPI数据
 @st.cache_data(ttl=6000)
 def chinese_cpi_index():
@@ -326,7 +344,7 @@ with st.container():
         go.Bar(x=chinese_index_name_list,  # x轴数据
                y=week_return,text=week_return,textposition="outside" # y轴数据
               )))
-   fig.update_layout(title_text='主要指数的近5日涨跌幅:'+all_data.index[-1].strftime('%Y-%m-%d')) 
+   fig.update_layout(title_text='主要指数的近5日绝对收益率:'+all_data.index[-1].strftime('%Y-%m-%d')) 
    st.plotly_chart(fig)
 
    fi8 = go.Figure()
@@ -465,6 +483,93 @@ with st.container():
                 )))
    fi2.update_layout(title_text='今日日行业主力净流入状况前10+后10,单位(亿)') 
    st.plotly_chart(fi2)
+
+   trace1 = go.Scatter(
+   x=cross.index.strftime('%Y-%m-%d'),
+   y=list(cross['上证指数']),
+   name='上证指数'
+    )
+   trace2 = go.Scatter(
+        x=cross.index.strftime('%Y-%m-%d'),
+        y=list(cross['大盘拥挤度']),
+        name='大盘拥挤度(右轴)',
+        xaxis='x', 
+        yaxis='y2'#标明设置一个不同于trace1的一个坐标轴
+    )
+    
+   trace = [trace1, trace2]
+   layout = go.Layout(legend=dict(
+                            orientation="h",
+                            yanchor="bottom",
+                            y=1.02,
+                            xanchor="center",
+                            x=0.5),
+        yaxis2=dict(anchor='x', overlaying='y', side='right')#设置坐标轴的格式，一般次坐标轴在右侧
+    )
+    
+   fi17 = go.Figure(data=trace, layout=layout)
+   st.markdown('上证指数及大盘拥挤度')
+   st.plotly_chart(fi17)
+
+   trace4 = go.Scatter(
+   x=stock_bond1.index.strftime('%Y-%m-%d'),
+   y=list(stock_bond1['沪深300指数']),
+   name='沪深300指数'
+     )
+   trace5 = go.Scatter(
+    x=stock_bond1.index.strftime('%Y-%m-%d'),
+    y=list(stock_bond1['股债利差']),
+    name='股债利差(右轴)',
+    xaxis='x', 
+    yaxis='y2'#标明设置一个不同于trace1的一个坐标轴
+     )
+   trace6 = go.Scatter(
+    x=stock_bond1.index.strftime('%Y-%m-%d'),
+    y=list(stock_bond1['股债利差均线']),
+    name='股债利差均线(右轴)',
+    xaxis='x', 
+    yaxis='y2'#标明设置一个不同于trace1的一个坐标轴
+      )
+   data123 = [trace4, trace5,trace6]
+   layout = go.Layout(legend=dict(
+                        orientation="h",
+                        yanchor="bottom",
+                        y=1.02,
+                        xanchor="center",
+                        x=0.5),
+    yaxis2=dict(anchor='x', overlaying='y', side='right')#设置坐标轴的格式，一般次坐标轴在右侧
+            )
+ 
+   fi18= go.Figure(data=data123, layout=layout)
+   st.markdown('沪深300及股债利差')
+   st.plotly_chart(fi18)
+
+   trace7 = go.Scatter(
+   x=pe_.index.strftime('%Y-%m-%d'),
+   y=list(pe_['指数']),
+   name='上证指数'
+    )
+   trace8 = go.Scatter(
+   x=pe_.index.strftime('%Y-%m-%d'),
+   y=list(pe_['平均市盈率']),
+    name='平均市盈率(右轴)',
+    xaxis='x', 
+    yaxis='y2'#标明设置一个不同于trace1的一个坐标轴
+    )
+
+   data_1 = [trace7, trace8]
+   layout = go.Layout(legend=dict(
+                        orientation="h",
+                        yanchor="bottom",
+                        y=1.02,
+                        xanchor="center",
+                        x=0.5),
+    yaxis2=dict(anchor='x', overlaying='y', side='right')#设置坐标轴的格式，一般次坐标轴在右侧
+)
+ 
+   fi20 = go.Figure(data=data_1, layout=layout)
+   st.markdown('上证指数及平均市盈率')
+   st.plotly_chart(fi20)
 
    
    lines3=[]
