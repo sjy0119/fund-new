@@ -241,7 +241,7 @@ def stock_bond():
     return stock_ebs_lg_df
 stock_bond1=stock_bond()
 #获取大盘拥挤度
-@st.catch_data(ttl=6000)
+@st.catche_data(ttl=6000)
 def get_cross():
     stock_a_congestion_lg_df = ak.stock_a_congestion_lg()
     stock_a_congestion_lg_df.columns=['date','上证指数','大盘拥挤度']
@@ -508,6 +508,7 @@ with st.container():
     )
     
    fi17 = go.Figure(data=trace, layout=layout)
+   fi17.update_xaxes(rangeslider_visible=True,linecolor='#c5c5c5')
    st.markdown('上证指数及大盘拥挤度')
    st.plotly_chart(fi17)
 
@@ -541,6 +542,7 @@ with st.container():
             )
  
    fi18= go.Figure(data=data123, layout=layout)
+   fi18.update_xaxes(rangeslider_visible=True,linecolor='#c5c5c5')
    st.markdown('沪深300及股债利差')
    st.plotly_chart(fi18)
 
@@ -568,6 +570,7 @@ with st.container():
 )
  
    fi20 = go.Figure(data=data_1, layout=layout)
+   fi20.update_xaxes(rangeslider_visible=True,linecolor='#c5c5c5')
    st.markdown('上证指数及平均市盈率')
    st.plotly_chart(fi20)
 
