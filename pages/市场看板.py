@@ -336,50 +336,75 @@ js_functions.eval(hash_code)
 token = js_functions.call("hex", datetime.now().date().isoformat()).lower()
 
 
-def stock_market_pb_lg(symbol: str = "上证") -> pd.DataFrame:
+def stock_market_pe_lg(symbol: str = "深证") -> pd.DataFrame:
     """
-    乐咕乐股-主板市净率
-    https://legulegu.com/stockdata/shanghaiPB
+    乐咕乐股-主板市盈率
+    https://legulegu.com/stockdata/shanghaiPE
     :param symbol: choice of {"上证", "深证", "创业板", "科创版"}
     :type symbol: str
-    :return: 指定市场的市净率数据
+    :return: 指定市场的市盈率数据
     :rtype: pandas.DataFrame
     """
-    url = "https://legulegu.com/api/stockdata/index-basic-pb"
-    symbol_map = {"上证": "1", "深证": "2", "创业板": "4", "科创版": "7"}
-    url_map = {
-        "上证": "https://legulegu.com/stockdata/shanghaiPB",
-        "深证": "https://legulegu.com/stockdata/shenzhenPB",
-        "创业板": "https://legulegu.com/stockdata/cybPB",
-        "科创版": "https://legulegu.com/stockdata/ke-chuang-ban-pb",
-    }
-    params = {"token": token, "indexCode": symbol_map[symbol]}
-    r = requests.get(url, params=params, **get_cookie_csrf(url=url_map[symbol]))
-    data_r=r.text
-    data_json = orjson.loads(data_r)
-    temp_df = pd.DataFrame(data_json["data"])
-    temp_df["date"] = (
-        pd.to_datetime(temp_df["date"], unit="ms", utc=True)
-        .dt.tz_convert("Asia/Shanghai")
-        .dt.date
-    )
-    temp_df = temp_df[
-        [
-            "date",
-            "close",
-            "addPb",
-            "pb",
-            "middlePb",
+    if symbol in {"上证", "深证", "创业板"}:
+        url = "https://legulegu.com/api/stock-data/market-pe"
+        symbol_map = {
+            "上证": "1",
+            "深证": "2",
+            "创业板": "4",
+        }
+        url_map = {
+            "上证": "https://legulegu.com/stockdata/shanghaiPE",
+            "深证": "https://legulegu.com/stockdata/shenzhenPE",
+            "创业板": "https://legulegu.com/stockdata/cybPE",
+        }
+        params = {"token": token, "marketId": symbol_map[symbol]}
+        r = requests.get(url, params=params, **get_cookie_csrf(url=url_map[symbol]))
+        data_r=r.text
+        data_json = orjson.loads(data_r)
+        temp_df = pd.DataFrame(data_json["data"])
+        temp_df["date"] = (
+            pd.to_datetime(temp_df["date"], unit="ms", utc=True)
+            .dt.tz_convert("Asia/Shanghai")
+            .dt.date
+        )
+        temp_df = temp_df[
+            [
+                "date",
+                "close",
+                "pe",
+            ]
         ]
-    ]
-    temp_df.columns = [
-        "日期",
-        "指数",
-        "市净率",
-        "等权市净率",
-        "市净率中位数",
-    ]
-    return temp_df
+        temp_df.columns = [
+            "日期",
+            "指数",
+            "平均市盈率",
+        ]
+        return temp_df
+    else:
+        url = "https://legulegu.com/api/stockdata/get-ke-chuang-ban-pe"
+        params = {"token": token}
+        r = requests.get(url, params=params, **get_cookie_csrf(url="https://legulegu.com/stockdata/ke-chuang-ban-pe"))
+        data_r=r.text
+        data_json = orjson.loads(data_r)
+        temp_df = pd.DataFrame(data_json["data"])
+        temp_df["date"] = (
+            pd.to_datetime(temp_df["date"], unit="ms", utc=True)
+            .dt.tz_convert("Asia/Shanghai")
+            .dt.date
+        )
+        temp_df = temp_df[
+            [
+                "date",
+                "close",
+                "pe",
+            ]
+        ]
+        temp_df.columns = [
+            "日期",
+            "总市值",
+            "市盈率",
+        ]
+        return temp_df
 #1.爬取市场主要指数的收盘价数据
 index_list=['000300.SH','000905.SH','000906.SH','000852.SH','000016.SH','000688.SH']
 name_list=['沪深300','中证500','上证50','中证1000','中证800','科创50']
