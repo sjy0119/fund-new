@@ -11,7 +11,16 @@ st.set_page_config(page_icon="😎",)
 st.markdown("# 基金择股择时能力分析")
 st.sidebar.header("基金择股择时能力分析")
 
-code=st.text_input('请输入基金代码例如000001')
+
+@st.cache_data
+def get_fund_name():
+    df=pd.read_csv("股票基金",index_col=0)
+    df['基金代码']=df['基金代码'].apply(lambda x: ('00000'+str(x))[-6:])
+    return df
+fund=get_fund_name()
+
+fund_name=st.selectbox('请选择基金',tuple(fund['基金简称']))
+code=fund.loc[fund['基金简称']==fund_name]['基金代码'].values[0]
 index=st.selectbox("请选择基准",
    ("沪深300", "中证500", "中证800",'中证1000','上证50','科创50'))
 st.caption('该模块为计算基金在近一年内四个时期的择股择时能力,由于数据是现爬现算,请耐心等待')
