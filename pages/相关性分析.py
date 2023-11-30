@@ -19,6 +19,7 @@ from akshare.index.cons import (
 from akshare.stock.cons import hk_js_decode
 from akshare.utils import demjson
 
+sns.set(font='SimHei')
 plt.rcParams['font.sans-serif']=['SimHei']
 plt.rcParams['axes.unicode_minus'] =False #减号unicode编码
 
