@@ -12,7 +12,7 @@ st.write(
 )
 @st.cache_data
 def get_fund_name():
-    df=pd.read_csv("全市场基金",index_col=0)
+    df=pd.read_csv("股票基金",index_col=0)
     df['基金代码']=df['基金代码'].apply(lambda x: ('00000'+str(x))[-6:])
     return df
 fund=get_fund_name()
