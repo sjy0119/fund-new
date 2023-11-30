@@ -136,10 +136,6 @@ if code:
     sns.heatmap(corr1,annot=True)
     st.pyplot(fig)
 
-    corr2=style_nav.corr()
-    fig1=plt.figure(figsize=(10,4))
-    sns.heatmap(corr2,annot=True)
-    st.pyplot(fig1)
-
+    
     
 
