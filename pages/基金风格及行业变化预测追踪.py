@@ -18,6 +18,13 @@ all=load_data()
 style_index=all[0]
 sw_index=all[1]
 
+@st.cache_data
+def get_fund_name():
+    df=pd.read_csv("股票基金",index_col=0)
+    df['基金代码']=df['基金代码'].apply(lambda x: ('00000'+str(x))[-6:])
+    return df
+fund=get_fund_name()
+
 index_name=list(sw_index['指数名称'].unique())
 sw1=sw_index.loc[sw_index['指数名称']==index_name[0]][['日期','收盘价']].rename(columns={'收盘价':f"{index_name[0]}",'日期':'date'}).set_index('date')
 for i in range(1,31):
@@ -146,7 +153,8 @@ def cal_sds(df):
 
 
 st.title('基金风格及行业变化预测追踪 :blue[!] :sunglasses:')
-code=st.text_input('请输入基金代码例如000001')
+fund_name=st.selectbox('请选择基金',tuple(fund['基金简称']))
+code=fund.loc[fund['基金简称']==fund_name]['基金代码'].values[0]
 text1='**基于基金收益率威廉·夏普风格分析，实现对基金风格的高频跟踪**'
 st.caption(text1)
 text2='晨星风格箱法往往会考虑利用重仓股对基金风格进行分析，但股票基金每季度更新上一季度重仓股情况，频率较低且具有一定的滞后性.\
