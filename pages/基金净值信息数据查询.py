@@ -67,9 +67,9 @@ if hg:
         df1=df.rename(columns={'adj_nav':'value'})
             #y=df[['day','net_value']].set_index('day').plot(figsize=(9,6),grid=True)#基金净值静态可视化
 
-if st.checkbox('绘制净值走势图'):
+
     st.line_chart(df1,x='nav_date',y='value')
 
-if st.checkbox('展示原始数据'):
-    st.subheader('原始数据')
-    st.dataframe(df1)
+    if st.checkbox('展示原始数据'):
+        st.subheader('原始数据')
+        st.dataframe(df1)
