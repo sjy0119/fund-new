@@ -33,6 +33,12 @@ def load_data():
     return df_hist1
 df_hist2=load_data()
 
+@st.cache_data
+def get_fund_name():
+    df=pd.read_csv("股票基金",index_col=0)
+    df['基金代码']=df['基金代码'].apply(lambda x: ('00000'+str(x))[-6:])
+    return df
+fund_re=get_fund_name()
 
 start_date = st.date_input(
     "请选择开始日期",
@@ -44,7 +50,8 @@ end_date = st.date_input(
     date(2021,5,9))
 end=str(end_date)
 
-code=st.text_input('请输入基金代码例如000001')
+fund_name_=st.selectbox('请选择基金',tuple(fund_re['基金简称']))
+code=fund_re.loc[fund_re['基金简称']==fund_name_]['基金代码'].values[0]
 index=st.selectbox("请选择比较基准",
    ("沪深300", "中证500", "中证800",'中证1000','上证50','科创50'))
 
