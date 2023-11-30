@@ -200,6 +200,7 @@ if code:
                     title_text="基金排名走势 ",
                     yaxis={'tickformat': '.2f', 'title': '排名'},
                     xaxis={'tickangle': -70, 'tickformat': '%Y-%m-%d'})
+        fig_.update_xaxes(rangeslider_visible=True,linecolor='#c5c5c5')
 
         
         st.plotly_chart(fig_nav_CIS)
