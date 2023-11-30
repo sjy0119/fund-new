@@ -10,7 +10,15 @@ st.sidebar.header("基金主体信息数据查询")
 st.write(
     """在该模块之中，大家可以选择输入基金代码便可以获得该基金的主体信息和行业配置信息，仅显示占净值比例大于1%的行业"""
 )
-code=st.text_input('请输入基金代码例如000001.OF')
+@st.cache_data
+def get_fund_name():
+    df=pd.read_csv("全市场基金",index_col=0)
+    df['基金代码']=df['基金代码'].apply(lambda x: ('00000'+str(x))[-6:])
+    return df
+fund=get_fund_name()
+fund_name=st.selectbox('请选择基金',tuple(fund['基金简称']))
+code=fund.loc[fund['基金简称']==fund_name]['基金代码'].values[0]
+code=code+'.OF'
 if code:
     df = pro.fund_basic(**{
     "ts_code":code,
@@ -60,8 +68,8 @@ if code:
         re_fund=fund_portfolio_industry_allocation_em_df.loc[fund_portfolio_industry_allocation_em_df['截止时间']==fund_portfolio_industry_allocation_em_df['截止时间'][0]]
         new_fund=re_fund.loc[re_fund['占净值比例']>=1]
         fig= px.bar(new_fund,x='行业类别',y='占净值比例')
-    if st.checkbox('显示信息'):
-        st.dataframe(df1,width=500)
-    if st.checkbox('展示基金行业配置信息'):
-        st.plotly_chart(fig)
+        if st.checkbox('显示信息'):
+            st.dataframe(df1,width=500)
+        if st.checkbox('展示基金行业配置信息'):
+            st.plotly_chart(fig)
 
