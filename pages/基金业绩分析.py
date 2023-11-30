@@ -13,6 +13,13 @@ st.set_page_config(page_icon="😎",)
 st.markdown("# 基金业绩分析")
 st.sidebar.header("基金业绩分析")
 
+@st.cache_data
+def get_fund_name():
+    df=pd.read_csv("全市场基金",index_col=0)
+    df['基金代码']=df['基金代码'].apply(lambda x: ('00000'+str(x))[-6:])
+    return df
+fund=get_fund_name()
+
 start_date = st.date_input(
     "请选择开始日期",
     date(2020,2,9))
@@ -23,7 +30,8 @@ end_date = st.date_input(
     date(2021,5,9))
 #st.write('结束日期:',end_date)
 结束=str(end_date)
-code=st.text_input('请输入基金代码例如000001')
+fund_name=st.selectbox('请选择基金',tuple(fund['基金简称']))
+code=fund.loc[fund['基金简称']==fund_name]['基金代码'].values[0]
 index=st.selectbox("请选择比较基准",
    ("沪深300", "中证500", "中证800",'中证1000','上证50','科创50'))
 
