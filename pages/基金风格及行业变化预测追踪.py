@@ -232,7 +232,7 @@ if st.button('开始运行'):
     x1 = list(fi_new['日期'])
     data_sw = [go.Scatter(name=i, x=x1, y=list(fi_new[i]), stackgroup="one") for i in index_name]
     layout1 = go.Layout(
-        title = '行业预测变化比例图',
+        title = '行业变化比例图',
         showlegend = True,
         xaxis = dict(
             type = 'category',
