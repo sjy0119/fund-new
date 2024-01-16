@@ -152,7 +152,7 @@ def cal_sds(df):
 
 
 
-st.title('基金风格及行业变化预测追踪 :blue[!] :sunglasses:')
+st.title('基金风格及行业变化追踪 :blue[!] :sunglasses:')
 fund_name=st.selectbox('请选择基金',tuple(fund['基金简称']))
 code=fund.loc[fund['基金简称']==fund_name]['基金代码'].values[0]
 text1='**基于基金收益率威廉·夏普风格分析，实现对基金风格的高频跟踪**'
